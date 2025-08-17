@@ -1,10 +1,7 @@
 package com.infrastructure.monolith.database.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Check;
 
 import java.math.BigDecimal;
@@ -12,6 +9,7 @@ import java.math.BigDecimal;
 @Table
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +26,6 @@ public class AccountEntity {
     @Column(nullable = false, updatable = false)
     private String currency;
 
-    @Builder.Default
-    @Column(nullable = false, columnDefinition = "DECIMAL(19, 4) DEFAULT 0.00")
-    private BigDecimal balance = BigDecimal.ZERO;
+    @Column(nullable = false)
+    private BigDecimal balance;
 }

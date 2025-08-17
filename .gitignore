@@ -2,6 +2,6 @@
 /.metadata/
 /account/target/
 /transfer/target/
-/infrastructure/target/
-/postgres/
 /monolith/target/
+/registry/target/
+/postgres_data/monolith/

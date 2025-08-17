@@ -1,3 +1,13 @@
 spring:
   application:
     name: monolith
+  cache:
+    type: caffeine
+  threads:
+    virtual:
+      enabled: true
+
+exchange-api:
+  base-url: https://api.frankfurter.app
+  cache:
+    name: currencies

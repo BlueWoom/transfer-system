@@ -1,24 +1,27 @@
 package com.domain.transfer.port;
 
-import com.domain.transfer.model.FailedTransfer;
+import com.domain.transfer.model.Account;
+import com.domain.transfer.model.Currency;
 import com.domain.transfer.model.PendingTransfer;
-import com.domain.transfer.model.SuccessTransfer;
-import com.domain.transfer.port.query.ProcessTransferQuery;
+import com.domain.transfer.port.query.AccountQuery;
 import com.domain.transfer.port.query.TransferQuery;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface TransferPort {
 
+    // Transfer operations
+
     boolean checkIfRequestExist(TransferQuery transferQuery);
 
-    Optional<PendingTransfer> getPendingTransferForUpdate(ProcessTransferQuery processTransferQuery);
+    void createPendingTransfer(PendingTransfer transfer);
 
-    Optional<PendingTransfer> getPendingTransferForUpdate(TransferQuery transferQuery);
+    // Account operations
 
-    void save(PendingTransfer transfer);
+    Optional<Account> getAccount(AccountQuery query);
 
-    void save(SuccessTransfer transfer);
+    // Exchange rate operations
 
-    void save(FailedTransfer transfer);
+    Optional<BigDecimal> getExchangeRate(Currency source, Currency destination);
 }

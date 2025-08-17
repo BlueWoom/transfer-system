@@ -1,10 +1,7 @@
 package com.infrastructure.monolith.database.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Check;
 
 import java.math.BigDecimal;
@@ -19,6 +16,7 @@ import java.util.UUID;
         }
 )
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,36 +30,36 @@ public class TransferEntity {
     @Column(nullable = false, unique = true, updatable = false)
     private UUID transferId;
 
-    @Column(nullable = false, unique = true, updatable = false)
+    @Column(nullable = false, updatable = false)
     private UUID requestId;
 
     @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    @Column(nullable = false, precision = 19, scale = 4, updatable = false)
+    @Column(precision = 19, scale = 4, updatable = false)
     private BigDecimal transferAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "originator_id", referencedColumnName = "owner_id", nullable = false, updatable = false)
+    @JoinColumn(name = "originator_id", referencedColumnName = "owner_id", updatable = false)
     private AccountEntity originator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "beneficiary_id", referencedColumnName = "owner_id", nullable = false, updatable = false)
+    @JoinColumn(name = "beneficiary_id", referencedColumnName = "owner_id", updatable = false)
     private AccountEntity beneficiary;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TransferStatus status;
 
-    @Column(updatable = false)
+    @Column
     private OffsetDateTime processedAt;
 
-    @Column(precision = 19, scale = 10, updatable = false)
+    @Column(precision = 19, scale = 10)
     private BigDecimal exchangeRate;
 
-    @Column(precision = 19, scale = 4, updatable = false)
+    @Column(precision = 19, scale = 4)
     private BigDecimal debit;
 
-    @Column(precision = 19, scale = 4, updatable = false)
+    @Column(precision = 19, scale = 4)
     private BigDecimal credit;
 }

@@ -1,13 +1,13 @@
 package com.infrastructure.monolith.api;
 
 import com.domain.account.model.Account;
-import com.domain.account.model.PageResult;
 import com.domain.account.port.query.AccountPageQuery;
 import com.domain.account.usecase.GetAccount;
 import com.domain.account.usecase.GetAccountPage;
 import com.domain.account.usecase.request.AccountRequest;
+import com.domain.account.usecase.request.PageResult;
 import com.infrastructure.monolith.api.dto.AccountDTO;
-import com.infrastructure.monolith.api.mapper.DomainAccountMapper;
+import com.infrastructure.monolith.api.mapper.AccountMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,7 +30,7 @@ public class AccountController {
 
     @GetMapping("/account/{ownerId}")
     public ResponseEntity<AccountDTO> getAccount(@PathVariable Long ownerId) {
-        return ResponseEntity.ok(DomainAccountMapper.INSTANCE.mapFromModelToDto(getAccount.execute(new AccountRequest(ownerId))));
+        return ResponseEntity.ok(AccountMapper.INSTANCE.mapFromModelToDto(getAccount.execute(new AccountRequest(ownerId))));
     }
 
     @GetMapping("/accounts")
@@ -38,11 +38,11 @@ public class AccountController {
 
         PageResult<Account> result = getAccountPage.execute(new AccountPageQuery(page, size));
 
-        List<AccountDTO> content = result.getContent().stream()
-                .map(DomainAccountMapper.INSTANCE::mapFromModelToDto)
+        List<AccountDTO> content = result.content().stream()
+                .map(AccountMapper.INSTANCE::mapFromModelToDto)
                 .toList();
 
-        Page<AccountDTO> dtoPage = new PageImpl<>(content, PageRequest.of(page, size), result.getTotalElements());
+        Page<AccountDTO> dtoPage = new PageImpl<>(content, PageRequest.of(page, size), result.totalElements());
         return ResponseEntity.ok(dtoPage);
     }
 }

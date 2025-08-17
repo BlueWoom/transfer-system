@@ -1,5 +1,8 @@
 package com.domain.account.exception;
 
+import lombok.Getter;
+
+@Getter
 public class AccountDomainException extends RuntimeException {
 
     private final AccountDomainErrorCode errorCode;

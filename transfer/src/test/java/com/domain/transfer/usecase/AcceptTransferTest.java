@@ -3,8 +3,6 @@ package com.domain.transfer.usecase;
 import com.domain.transfer.exception.TransferDomainErrorCode;
 import com.domain.transfer.exception.TransferDomainException;
 import com.domain.transfer.model.*;
-import com.domain.transfer.port.AccountPort;
-import com.domain.transfer.port.ExchangePort;
 import com.domain.transfer.port.TransferPort;
 import com.domain.transfer.port.query.AccountQuery;
 import com.domain.transfer.port.query.TransferQuery;
@@ -24,20 +22,14 @@ import static org.mockito.Mockito.*;
 
 class AcceptTransferTest {
 
-    private AccountPort accountPort;
-
-    private ExchangePort exchangePort;
-
     private TransferPort transferPort;
 
     private AcceptTransfer usecase;
 
     @BeforeEach
     void setUp() {
-        accountPort = mock(AccountPort.class);
-        exchangePort = mock(ExchangePort.class);
         transferPort = mock(TransferPort.class);
-        usecase = new AcceptTransfer(accountPort, exchangePort, transferPort) {
+        usecase = new AcceptTransfer(transferPort) {
         };
     }
 
@@ -53,11 +45,11 @@ class AcceptTransferTest {
         Account beneficiary = new Account(2L, eur, new BigDecimal("0.0"));
 
         when(transferPort.checkIfRequestExist(new TransferQuery(requestId))).thenReturn(false);
-        when(accountPort.getAccount(new AccountQuery(originator.getOwnerId()))).thenReturn(Optional.of(originator));
-        when(accountPort.getAccount(new AccountQuery(beneficiary.getOwnerId()))).thenReturn(Optional.of(beneficiary));
-        when(exchangePort.getExchangeRate(usd, eur)).thenReturn(Optional.of(exchangeRate));
+        when(transferPort.getAccount(new AccountQuery(originator.ownerId()))).thenReturn(Optional.of(originator));
+        when(transferPort.getAccount(new AccountQuery(beneficiary.ownerId()))).thenReturn(Optional.of(beneficiary));
+        when(transferPort.getExchangeRate(usd, eur)).thenReturn(Optional.of(exchangeRate));
 
-        TransferRequest request = new TransferRequest(requestId, originator.getOwnerId(), beneficiary.getOwnerId(), amount);
+        TransferRequest request = new TransferRequest(requestId, originator.ownerId(), beneficiary.ownerId(), amount);
 
         PendingTransfer actualTransfer = usecase.execute(request);
 
@@ -69,7 +61,7 @@ class AcceptTransferTest {
                 .isEqualTo(expectedTransfer);
 
         ArgumentCaptor<PendingTransfer> captor = ArgumentCaptor.forClass(PendingTransfer.class);
-        verify(transferPort).save(captor.capture());
+        verify(transferPort).createPendingTransfer(captor.capture());
         assertThat(captor.getValue())
                 .usingRecursiveComparison()
                 .ignoringFields("transferId", "createdAt")
@@ -92,7 +84,7 @@ class AcceptTransferTest {
     void shouldThrowWhenOriginatorAccountNotFound() {
         UUID requestId = UUID.randomUUID();
         when(transferPort.checkIfRequestExist(new TransferQuery(requestId))).thenReturn(false);
-        when(accountPort.getAccount(any(AccountQuery.class))).thenReturn(Optional.empty());
+        when(transferPort.getAccount(any(AccountQuery.class))).thenReturn(Optional.empty());
 
         TransferRequest request = new TransferRequest(requestId, 1L, 2L, new BigDecimal("100.0"));
 
@@ -109,8 +101,8 @@ class AcceptTransferTest {
         Account originator = new Account(originatorId, Currency.USD, new BigDecimal("100.0"));
 
         when(transferPort.checkIfRequestExist(new TransferQuery(requestId))).thenReturn(false);
-        when(accountPort.getAccount(new AccountQuery(originatorId))).thenReturn(Optional.of(originator));
-        when(accountPort.getAccount(new AccountQuery(beneficiaryId))).thenReturn(Optional.empty());
+        when(transferPort.getAccount(new AccountQuery(originatorId))).thenReturn(Optional.of(originator));
+        when(transferPort.getAccount(new AccountQuery(beneficiaryId))).thenReturn(Optional.empty());
 
         TransferRequest request = new TransferRequest(requestId, originatorId, beneficiaryId, new BigDecimal("100.0"));
 
@@ -128,9 +120,9 @@ class AcceptTransferTest {
         Account beneficiary = new Account(beneficiaryId, Currency.EUR, new BigDecimal("0.0"));
 
         when(transferPort.checkIfRequestExist(new TransferQuery(requestId))).thenReturn(false);
-        when(accountPort.getAccount(new AccountQuery(originatorId))).thenReturn(Optional.of(originator));
-        when(accountPort.getAccount(new AccountQuery(beneficiaryId))).thenReturn(Optional.of(beneficiary));
-        when(exchangePort.getExchangeRate(Currency.USD, Currency.EUR)).thenReturn(Optional.empty());
+        when(transferPort.getAccount(new AccountQuery(originatorId))).thenReturn(Optional.of(originator));
+        when(transferPort.getAccount(new AccountQuery(beneficiaryId))).thenReturn(Optional.of(beneficiary));
+        when(transferPort.getExchangeRate(Currency.USD, Currency.EUR)).thenReturn(Optional.empty());
 
         TransferRequest request = new TransferRequest(requestId, originatorId, beneficiaryId, new BigDecimal("100.0"));
 
@@ -149,9 +141,9 @@ class AcceptTransferTest {
         Account beneficiary = new Account(beneficiaryId, Currency.EUR, new BigDecimal("0.0"));
 
         when(transferPort.checkIfRequestExist(new TransferQuery(requestId))).thenReturn(false);
-        when(accountPort.getAccount(new AccountQuery(originatorId))).thenReturn(Optional.of(originator));
-        when(accountPort.getAccount(new AccountQuery(beneficiaryId))).thenReturn(Optional.of(beneficiary));
-        when(exchangePort.getExchangeRate(Currency.USD, Currency.EUR)).thenReturn(Optional.of(originatorRate));
+        when(transferPort.getAccount(new AccountQuery(originatorId))).thenReturn(Optional.of(originator));
+        when(transferPort.getAccount(new AccountQuery(beneficiaryId))).thenReturn(Optional.of(beneficiary));
+        when(transferPort.getExchangeRate(Currency.USD, Currency.EUR)).thenReturn(Optional.of(originatorRate));
 
         TransferRequest request = new TransferRequest(requestId, originatorId, beneficiaryId, new BigDecimal("100.0"));
 

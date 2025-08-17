@@ -3,19 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.transfer.system</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
 
     <groupId>com.domain</groupId>
     <artifactId>account</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-
-    <properties>
-        <java.version>21</java.version>
-        <lombok.version>1.18.38</lombok.version>
-        <junit.version>5.10.3</junit.version>
-        <mockito.version>5.12.0</mockito.version>
-        <assertj-core.version>3.26.3</assertj-core.version>
-        <slf4j.version>2.0.13</slf4j.version>
-    </properties>
 
     <dependencies>
         <!-- Logging -->
@@ -40,7 +36,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -52,7 +47,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

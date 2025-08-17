@@ -4,8 +4,6 @@ import com.domain.transfer.exception.TransferDomainErrorCode;
 import com.domain.transfer.exception.TransferDomainException;
 import com.domain.transfer.model.Account;
 import com.domain.transfer.model.PendingTransfer;
-import com.domain.transfer.port.AccountPort;
-import com.domain.transfer.port.ExchangePort;
 import com.domain.transfer.port.TransferPort;
 import com.domain.transfer.port.query.AccountQuery;
 import com.domain.transfer.port.query.TransferQuery;
@@ -21,10 +19,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public abstract class AcceptTransfer implements Usecase<PendingTransfer, TransferRequest> {
 
-    private final AccountPort accountPort;
-
-    private final ExchangePort exchangePort;
-
     private final TransferPort transferPort;
 
     @Override
@@ -35,21 +29,21 @@ public abstract class AcceptTransfer implements Usecase<PendingTransfer, Transfe
         }
 
         // Perform pre-validation (fail fast)
-        Account originator = accountPort.getAccount(new AccountQuery(request.originatorId()))
+        Account originator = transferPort.getAccount(new AccountQuery(request.originatorId()))
                 .orElseThrow(() -> new TransferDomainException(TransferDomainErrorCode.ACCOUNT_NOT_FOUND, "Originator account not found"));
 
-        Account beneficiary = accountPort.getAccount(new AccountQuery(request.beneficiaryId()))
+        Account beneficiary = transferPort.getAccount(new AccountQuery(request.beneficiaryId()))
                 .orElseThrow(() -> new TransferDomainException(TransferDomainErrorCode.ACCOUNT_NOT_FOUND, "Beneficiary account not found"));
 
         // Fetch originator exchange
-        BigDecimal exchangeRate = exchangePort.getExchangeRate(originator.getCurrency(), beneficiary.getCurrency())
-                .orElseThrow(() -> new TransferDomainException(TransferDomainErrorCode.EXCHANGE_RATE_NOT_FOUND, String.format("Exchange rate not found from %s to %s",  originator.getCurrency(), beneficiary.getCurrency())));
+        BigDecimal exchangeRate = transferPort.getExchangeRate(originator.currency(), beneficiary.currency())
+                .orElseThrow(() -> new TransferDomainException(TransferDomainErrorCode.EXCHANGE_RATE_NOT_FOUND, String.format("Exchange rate not found from %s to %s",  originator.currency(), beneficiary.currency())));
 
         BigDecimal debit = request.amount().multiply(exchangeRate);
 
         // Validate originator has enough balance
         if (!originator.hasFund(debit)) {
-            throw new TransferDomainException(TransferDomainErrorCode.INSUFFICIENT_BALANCE, "Cannot transfer from originator account");
+            throw new TransferDomainException(TransferDomainErrorCode.INSUFFICIENT_BALANCE, "Cannot transfer from originator account, insufficient balance");
         }
 
         // Audit transfer
@@ -61,7 +55,7 @@ public abstract class AcceptTransfer implements Usecase<PendingTransfer, Transfe
                 originator,
                 beneficiary);
 
-        transferPort.save(pendingTransfer);
+        transferPort.createPendingTransfer(pendingTransfer);
         log.info("Transfer request has been created {}", pendingTransfer);
         return pendingTransfer;
     }

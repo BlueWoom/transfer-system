@@ -3,7 +3,6 @@ package com.domain.account.usecase;
 import com.domain.account.exception.AccountDomainErrorCode;
 import com.domain.account.exception.AccountDomainException;
 import com.domain.account.model.Account;
-import com.domain.account.model.Currency;
 import com.domain.account.port.AccountPort;
 import com.domain.account.port.query.AccountQuery;
 import com.domain.account.usecase.request.AccountRequest;
@@ -33,15 +32,15 @@ class GetAccountUsecaseTest {
     @Test
     void should_return_account_when_found() {
         Long ownerId = 42L;
-        Account account = new Account(ownerId, Currency.USD, new BigDecimal("100.0"));
+        Account account = new Account(ownerId, "USD", new BigDecimal("100.0"));
         when(accountPort.getAccount(new AccountQuery(ownerId))).thenReturn(Optional.of(account));
 
         AccountRequest request = new AccountRequest(ownerId);
         Account result = usecase.execute(request);
 
-        assertThat(result.getOwnerId()).isEqualTo(account.getOwnerId());
-        assertThat(result.getCurrency()).isEqualTo(account.getCurrency());
-        assertThat(result.getBalance()).isEqualTo(account.getBalance());
+        assertThat(result.ownerId()).isEqualTo(account.ownerId());
+        assertThat(result.currency()).isEqualTo(account.currency());
+        assertThat(result.balance()).isEqualTo(account.balance());
     }
 
     @Test

@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: test
+  cache:
+    type: caffeine
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monolith
+    username: monolith
+    password: monolith
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

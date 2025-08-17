@@ -1,0 +1,41 @@
+package com.infrastructure.monolith.api;
+
+import com.domain.account.exception.AccountDomainException;
+import com.domain.registry.exception.RegistryDomainException;
+import com.infrastructure.monolith.api.dto.ErrorDTO;
+import com.infrastructure.monolith.api.dto.TransferDTO;
+import com.infrastructure.monolith.api.mapper.RegistryMapper;
+import com.infrastructure.monolith.usecase.registry.TransferProcessingException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.OffsetDateTime;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(TransferProcessingException.class)
+    public ResponseEntity<TransferDTO> handleTransferProcessingException(TransferProcessingException ex) {
+        return new ResponseEntity<>(RegistryMapper.INSTANCE.mapFromModelToDto(ex.getFailedTransfer()), ErrorDTO.convertRegistryCode(ex.getErrorCode()));
+    }
+
+    @ExceptionHandler(RegistryDomainException.class)
+    public ResponseEntity<ErrorDTO> handleTransferProcessingException(RegistryDomainException ex) {
+        ErrorDTO errorDTO = new ErrorDTO(ex.getErrorCode(), ex.getMessage(), null, OffsetDateTime.now());
+        return new ResponseEntity<>(errorDTO, errorDTO.getHttpStatus());
+    }
+
+
+    @ExceptionHandler(AccountDomainException.class)
+    public ResponseEntity<ErrorDTO> handleTransferProcessingException(AccountDomainException ex) {
+        ErrorDTO errorDTO = new ErrorDTO(ex.getErrorCode(), ex.getMessage(), null, OffsetDateTime.now());
+        return new ResponseEntity<>(errorDTO, errorDTO.getHttpStatus());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDTO> handleGenericException(Exception ex) {
+        ErrorDTO errorDTO = new ErrorDTO(ex.getMessage(), OffsetDateTime.now());
+        return new ResponseEntity<>(errorDTO, errorDTO.getHttpStatus());
+    }
+}

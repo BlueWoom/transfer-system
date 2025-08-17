@@ -7,11 +7,25 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         default_schema: public
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+exchange-api:
+  cache:
+    size: 500
+    expiration-hours: 24
+  retryer:
+    period-seconds: 100
+    duration-seconds: 10
+    max-attempts: 3
+
 server:
   port: 8080
+
+#logging:
+#  level:
+#    org.springframework.transaction: TRACE
+#    org.springframework.orm.jpa.JpaTransactionManager: TRACE

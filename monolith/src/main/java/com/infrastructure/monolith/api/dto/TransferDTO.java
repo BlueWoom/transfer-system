@@ -1,5 +1,19 @@
 package com.infrastructure.monolith.api.dto;
 
-public class TransferDTO {
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
-}
+
+public record TransferDTO(UUID transferId,
+                          UUID requestId,
+                          OffsetDateTime createdAt,
+                          BigDecimal transferAmount,
+                          AccountDTO originator,
+                          AccountDTO beneficiary,
+                          TransferStatusDTO status,
+                          OffsetDateTime processedAt,
+                          BigDecimal exchangeRate,
+                          BigDecimal debit,
+                          BigDecimal credit,
+                          String errorCode) { }

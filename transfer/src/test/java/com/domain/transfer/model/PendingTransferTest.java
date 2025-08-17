@@ -8,13 +8,14 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PendingTransferTest {
 
     @Test
     void shouldCreatePendingTransferSuccessfully() {
-        // Arrange
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
@@ -22,79 +23,103 @@ class PendingTransferTest {
         Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
         Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
 
-        // Act
         PendingTransfer pendingTransfer = new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary);
 
-        // Assert
-        assertNotNull(pendingTransfer);
-        assertEquals(transferId, pendingTransfer.getTransferId());
-        assertEquals(requestId, pendingTransfer.getRequestId());
-        assertEquals(createdAt, pendingTransfer.getCreatedAt());
-        assertEquals(transferAmount, pendingTransfer.getTransferAmount());
-        assertEquals(originator, pendingTransfer.getOriginator());
-        assertEquals(beneficiary, pendingTransfer.getBeneficiary());
+        assertThat(pendingTransfer).isNotNull();
+        assertThat(pendingTransfer.getTransferId()).isEqualTo(transferId);
+        assertThat(pendingTransfer.getRequestId()).isEqualTo(requestId);
+        assertThat(pendingTransfer.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(pendingTransfer.getTransferAmount()).isEqualTo(transferAmount);
+        assertThat(pendingTransfer.getOriginator()).isEqualTo(originator);
+        assertThat(pendingTransfer.getBeneficiary()).isEqualTo(beneficiary);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTransferIdIsNull() {
+        UUID requestId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        BigDecimal transferAmount = BigDecimal.valueOf(100.00);
+        Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
+        Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
+
+        assertThatThrownBy(() -> new PendingTransfer(null, requestId, createdAt, transferAmount, originator, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_TRANSFER)
+                .hasMessage("Transfer is invalid due to missing fields.");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRequestIdIsNull() {
+        UUID transferId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        BigDecimal transferAmount = BigDecimal.valueOf(100.00);
+        Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
+        Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
+
+        assertThatThrownBy(() -> new PendingTransfer(transferId, null, createdAt, transferAmount, originator, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_TRANSFER)
+                .hasMessage("Transfer is invalid due to missing fields.");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatedAtIsNull() {
+        UUID transferId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+        BigDecimal transferAmount = BigDecimal.valueOf(100.00);
+        Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
+        Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
+
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, null, transferAmount, originator, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_TRANSFER)
+                .hasMessage("Transfer is invalid due to missing fields.");
     }
 
     @Test
     void shouldThrowExceptionWhenTransferAmountIsNull() {
-        // Arrange
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
         Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
 
-        // Act
-        TransferDomainException exception = assertThrows(TransferDomainException.class, () ->
-                new PendingTransfer(transferId, requestId, createdAt, null, originator, beneficiary)
-        );
-
-        // Assert
-        assertEquals(TransferDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
-        assertEquals("Transfer is not processable due to missing fields.", exception.getMessage());
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, createdAt, null, originator, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_TRANSFER)
+                .hasMessage("Transfer is not processable due to missing fields.");
     }
 
     @Test
     void shouldThrowExceptionWhenOriginatorIsNull() {
-        // Arrange
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = BigDecimal.valueOf(100.00);
         Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
 
-        // Act
-        TransferDomainException exception = assertThrows(TransferDomainException.class, () ->
-                new PendingTransfer(transferId, requestId, createdAt, transferAmount, null, beneficiary)
-        );
-
-        // Assert
-        assertEquals(TransferDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
-        assertEquals("Transfer is not processable due to missing fields.", exception.getMessage());
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, createdAt, transferAmount, null, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_TRANSFER)
+                .hasMessage("Transfer is not processable due to missing fields.");
     }
 
     @Test
     void shouldThrowExceptionWhenBeneficiaryIsNull() {
-        // Arrange
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = BigDecimal.valueOf(100.00);
         Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
 
-        // Act
-        TransferDomainException exception = assertThrows(TransferDomainException.class, () ->
-                new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, null)
-        );
-
-        // Assert
-        assertEquals(TransferDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
-        assertEquals("Transfer is not processable due to missing fields.", exception.getMessage());
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, null))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_TRANSFER)
+                .hasMessage("Transfer is not processable due to missing fields.");
     }
 
     @Test
     void shouldThrowExceptionWhenTransferAmountIsZero() {
-        // Arrange
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
@@ -102,19 +127,14 @@ class PendingTransferTest {
         Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
         Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
 
-        // Act
-        TransferDomainException exception = assertThrows(TransferDomainException.class, () ->
-                new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary)
-        );
-
-        // Assert
-        assertEquals(TransferDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
-        assertEquals("Transfer amount must be greater than zero.", exception.getMessage());
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.NEGATIVE_AMOUNT)
+                .hasMessage("Transfer amount must be greater than zero.");
     }
 
     @Test
     void shouldThrowExceptionWhenTransferAmountIsNegative() {
-        // Arrange
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
@@ -122,19 +142,14 @@ class PendingTransferTest {
         Account originator = new Account(1L, Currency.USD, BigDecimal.ZERO);
         Account beneficiary = new Account(2L, Currency.EUR, BigDecimal.ZERO);
 
-        // Act
-        TransferDomainException exception = assertThrows(TransferDomainException.class, () ->
-                new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary)
-        );
-
-        // Assert
-        assertEquals(TransferDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
-        assertEquals("Transfer amount must be greater than zero.", exception.getMessage());
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.NEGATIVE_AMOUNT)
+                .hasMessage("Transfer amount must be greater than zero.");
     }
 
     @Test
     void shouldThrowExceptionWhenOriginatorAndBeneficiaryAreTheSame() {
-        // Arrange
         Long sameOwnerId = 1L;
         Account sameAccount = new Account(sameOwnerId, Currency.USD, BigDecimal.ZERO);
         UUID transferId = UUID.randomUUID();
@@ -142,13 +157,9 @@ class PendingTransferTest {
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = BigDecimal.valueOf(100.00);
 
-        // Act
-        TransferDomainException exception = assertThrows(TransferDomainException.class, () ->
-                new PendingTransfer(transferId, requestId, createdAt, transferAmount, sameAccount, sameAccount)
-        );
-
-        // Assert
-        assertEquals(TransferDomainErrorCode.INVALID_BENEFICIARY, exception.getErrorCode());
-        assertEquals("Originator and beneficiary cannot be the same.", exception.getMessage());
+        assertThatThrownBy(() -> new PendingTransfer(transferId, requestId, createdAt, transferAmount, sameAccount, sameAccount))
+                .isInstanceOf(TransferDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", TransferDomainErrorCode.INVALID_BENEFICIARY)
+                .hasMessage("Originator and beneficiary cannot be the same.");
     }
 }

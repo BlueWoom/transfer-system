@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.transfer.system</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>parent</name>
+    <description>Parent module</description>
+    <packaging>pom</packaging>
+
+    <properties>
+        <java.version>21</java.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <spring-cloud.version>4.3.0</spring-cloud.version>
+        <domain.account.version>0.0.1-SNAPSHOT</domain.account.version>
+        <domain.registry.version>0.0.1-SNAPSHOT</domain.registry.version>
+        <testcontainer.version>1.19.8</testcontainer.version>
+    </properties>
+
+    <modules>
+        <module>account</module>
+        <module>transfer</module>
+        <module>registry</module>
+        <module>monolith</module>
+    </modules>
+</project>

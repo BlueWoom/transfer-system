@@ -2,32 +2,10 @@ package com.domain.transfer.model;
 
 import com.domain.transfer.exception.TransferDomainErrorCode;
 import com.domain.transfer.exception.TransferDomainException;
-import lombok.Getter;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 
-@Getter
-@ToString
-public class Account {
-
-	private final Long ownerId;
-	
-	private final Currency currency;
-	
-	private final BigDecimal balance;
-
-    public Account(Long ownerId, Currency currency, BigDecimal balance) {
-        this.ownerId = ownerId;
-        this.currency = currency;
-        this.balance = balance;
-    }
-
-    public Account(Long ownerId, Currency currency) {
-        this.ownerId = ownerId;
-        this.currency = currency;
-        this.balance = BigDecimal.ZERO;
-    }
+public record Account(Long ownerId, Currency currency, BigDecimal balance) {
 
     public boolean hasFund(BigDecimal amount) {
         return balance.compareTo(amount) >= 0;
