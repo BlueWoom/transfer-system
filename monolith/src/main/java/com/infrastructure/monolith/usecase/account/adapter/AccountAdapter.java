@@ -4,7 +4,9 @@ import com.domain.account.model.Account;
 import com.domain.account.port.AccountPort;
 import com.domain.account.port.query.AccountPageQuery;
 import com.domain.account.port.query.AccountQuery;
+import com.domain.account.port.query.UpdateAccountQuery;
 import com.domain.account.usecase.request.PageResult;
+import com.infrastructure.monolith.database.entity.AccountEntity;
 import com.infrastructure.monolith.database.repository.AccountRepository;
 import com.infrastructure.monolith.usecase.account.mapper.AccountDomainMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +37,10 @@ public class AccountAdapter implements AccountPort {
                 .map(AccountDomainMapper.INSTANCE::mapFromEntityToModel);
 
         return new PageResult<>(accountPage.getContent(), accountPage.getTotalElements(), accountPage.getTotalPages());
+    }
+
+    @Override
+    public void updateAccount(UpdateAccountQuery query) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

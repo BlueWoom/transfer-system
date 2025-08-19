@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: test
+
+  cloud:
+    config:
+      enabled: false
+
+  threads:
+    virtual:
+      enabled: true
+
+rabbitmq-config:
+  exchange: "registry.exchange"
+  queue: "registry.queue"
+  routing-key: "registry.work"
+  dlx: "registry.dlx"
+  dlq: "registry.dlq"
+
+eureka:
+  client:
+    enabled: false

@@ -71,7 +71,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
         assertThat(beneficiaryEntity.getBalance()).isEqualTo(new BigDecimal("3500.00"));
 
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertSuccessfulTransfer(transferEntity.get(), originatorEntity, beneficiaryEntity, actualTransfer);
     }
 
@@ -95,7 +95,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -118,7 +118,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -141,7 +141,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -164,7 +164,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -187,7 +187,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -210,7 +210,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -233,7 +233,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
@@ -257,7 +257,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert database status is as expected
         Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity.isPresent()).isTrue();
+        assertThat(transferEntity).isPresent();
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 

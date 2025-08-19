@@ -16,10 +16,4 @@ public class TransferProcessingException extends RuntimeException {
         this.failedTransfer = failedTransfer;
         this.errorCode = errorCode;
     }
-
-    public TransferProcessingException(FailedTransfer failedTransfer, String message, Throwable cause) {
-        super(message, cause);
-        this.failedTransfer = failedTransfer;
-        this.errorCode = null;
-    }
 }

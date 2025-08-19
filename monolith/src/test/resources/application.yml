@@ -11,6 +11,8 @@ spring:
     username: monolith
     password: monolith
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 100
 
   jpa:
     hibernate:

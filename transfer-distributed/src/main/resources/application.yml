@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: transfer-distributed
+
+  cloud:
+    config:
+      enabled: false
+
+  threads:
+    virtual:
+      enabled: true
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+rabbitmq-config:
+  exchange: "registry.exchange"
+  queue: "registry.queue"
+  routing-key: "registry.work"
+  dlx: "registry.dlx"
+  dlq: "registry.dlq"
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${SPRING_EUREKA_SERVICE}/eureka/

@@ -2,7 +2,15 @@
 /.metadata/
 /account/target/
 /transfer/target/
-/monolith/target/
 /registry/target/
+/monolith/target/
+/eureka/target/
+/gateway/target/
+/transfer-distributed/target/
+/account-distributed/target/
+/rabbitmq_data/
 /postgres_data/monolith/
 /postgres_data/standalone/
+/postgres_data/distributed/account
+/postgres_data/distributed/registry
+/postgres_data/distributed/transfer

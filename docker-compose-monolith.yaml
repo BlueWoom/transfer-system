@@ -7,7 +7,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/monolith
       - SPRING_DATASOURCE_USERNAME=monolith
@@ -25,6 +26,11 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data/monolith:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U monolith -d monolith" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres:

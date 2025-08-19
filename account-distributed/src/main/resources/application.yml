@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: account-distributed
+
+  cloud:
+    config:
+      enabled: false
+
+  threads:
+    virtual:
+      enabled: true
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        default-requeue-rejected: false
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+rabbitmq-config:
+  exchange: "registry.fanout"
+  dlx: "registry.dlx"
+  dlq: "registry.dlq"
+
+server:
+  port: 8082
+
+eureka:
+  instance:
+    # Send a heartbeat every 5 seconds, only for test purpose
+    lease-renewal-interval-in-seconds: 5
+  client:
+    # Fetch the registry every 5 seconds, only for test purpose
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: ${SPRING_EUREKA_SERVICE}/eureka/

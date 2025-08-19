@@ -4,6 +4,7 @@ import com.infrastructure.monolith.api.dto.TransferDTO;
 import com.infrastructure.monolith.api.dto.TransferRequestDTO;
 import com.infrastructure.monolith.database.entity.AccountEntity;
 import com.infrastructure.monolith.database.entity.TransferEntity;
+import com.infrastructure.monolith.database.entity.TransferStatus;
 import com.infrastructure.monolith.database.repository.AccountRepository;
 import com.infrastructure.monolith.database.repository.TransferRepository;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,7 +47,7 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
                 new TransferRequestDTO(103L, 102L, new BigDecimal("1"))
         );
 
-        List<TransferDTO> transfers = new ArrayList<>();
+        List<TransferDTO> transfers = Collections.synchronizedList(new ArrayList<>());
 
         CountDownLatch latch = new CountDownLatch(transferRequests.size() * MAX_NUMBER_OF_TRANSFER);
         ExecutorService executorService = Executors.newFixedThreadPool(transferRequests.size() * MAX_NUMBER_OF_TRANSFER);
@@ -77,7 +75,8 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
 
         transfers.forEach(transfer -> {
             Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(transfer.transferId());
-            assertThat(transferEntity.isPresent()).isTrue();
+            assertThat(transferEntity).isPresent();
+            assertThat(transferEntity.get().getStatus()).isEqualTo(TransferStatus.SUCCESS);
         });
 
         AccountEntity originator1 = accountRepository.findByOwnerId(101L).get();

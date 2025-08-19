@@ -1,0 +1,140 @@
+services:
+  # -- Eureka server for transfer system --
+  eureka:
+    build:
+      context: .
+      dockerfile: ./eureka/src/main/resources/Dockerfile
+    restart: always
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # -- Gateway for transfer system --
+  gateway:
+    build:
+      context: .
+      dockerfile: ./gateway/src/main/resources/Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka:
+        condition: service_healthy
+    environment:
+      - SPRING_EUREKA_SERVICE=http://eureka:8761
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # -- Accept transfer for transfer system --
+  transfer-distributed-app:
+    build:
+      context: .
+      dockerfile: ./transfer-distributed/src/main/resources/Dockerfile
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      eureka:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_EUREKA_SERVICE=http://eureka:8761
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=distributed
+      - SPRING_RABBITMQ_PASSWORD=distributed
+
+  account-distributed-app:
+    build:
+      context: .
+      dockerfile: ./account-distributed/src/main/resources/Dockerfile
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      eureka:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      db_account:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_EUREKA_SERVICE=http://eureka:8761
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_account:5432/account
+      - SPRING_DATASOURCE_USERNAME=account
+      - SPRING_DATASOURCE_PASSWORD=account
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=distributed
+      - SPRING_RABBITMQ_PASSWORD=distributed
+
+  # -- Database for Account Service --
+  db_account:
+    image: postgres:latest
+    container_name: db_account
+    restart: always
+    environment:
+      - POSTGRES_USER=account
+      - POSTGRES_PASSWORD=account
+      - POSTGRES_DB=account
+    ports:
+      - "5432:5432" # Host port is different to avoid conflicts
+    volumes:
+      - ./postgres_data/distributed/account:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U account -d account" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -- Database for Registry Service --
+  db_registry:
+    image: postgres:latest
+    container_name: db_registry
+    restart: always
+    environment:
+      - POSTGRES_USER=registry
+      - POSTGRES_PASSWORD=registry
+      - POSTGRES_DB=registry
+    ports:
+      - "5433:5432" # Host port is different to avoid conflicts
+    volumes:
+      - ./postgres_data/distributed/registry:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U registry -d registry" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -- Shared Message Broker --
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=distributed
+      - RABBITMQ_DEFAULT_PASS=distributed
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq/
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10

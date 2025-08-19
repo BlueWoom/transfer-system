@@ -17,7 +17,7 @@ public interface RegistryMapper {
     @Mapping(target = "debit", ignore = true)
     @Mapping(target = "credit", ignore = true)
     @Mapping(target = "currency", source = "currency", qualifiedByName = "mapCurrency")
-    Account mapFromEntityToModel(AccountEntity entity);
+    Account mapFromModelToEntity(AccountEntity entity);
 
     @Mapping(target = "id", ignore = true)
     AccountEntity mapFromModelToEntity(Account model);
@@ -25,7 +25,7 @@ public interface RegistryMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", expression = "java(com.infrastructure.monolith.database.entity.TransferStatus.SUCCESS)")
     @Mapping(target = "errorCode", ignore = true)
-    TransferEntity mapFromEntityToModel(SuccessfulTransfer transfer);
+    TransferEntity mapFromModelToEntity(SuccessfulTransfer transfer);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "transferAmount", ignore = true)
@@ -36,15 +36,15 @@ public interface RegistryMapper {
     @Mapping(target = "credit", ignore = true)
     @Mapping(target = "status", expression = "java(com.infrastructure.monolith.database.entity.TransferStatus.FAILED)")
     @Mapping(target="errorCode", source="errorCode", qualifiedByName = "mapErrorCode")
-    TransferEntity mapFromEntityToModel(FailedTransfer transfer);
+    TransferEntity mapFromModelToEntity(FailedTransfer transfer);
 
     @Named("mapCurrency")
-    default Currency mapFromEntityToModel(String currency) {
+    default Currency mapFromStringToModel(String currency) {
         return Currency.valueOf(currency);
     }
 
     @Named("mapErrorCode")
-    default String mapFromModelToModel(RegistryDomainErrorCode errorCode) {
+    default String mapFromModelToString(RegistryDomainErrorCode errorCode) {
         return errorCode.getValue();
     }
 }
