@@ -23,6 +23,7 @@ public enum RegistryDomainErrorCode {
     INVALID_TRANSFER("Transfer is invalid"),
     INVALID_CURRENCY("Invalid currency"),
 
+    EXCHANGE_RATE_NEGATIVE("Exchange rate is negative"),
     UNEXPECTED_ERROR("Unexpected error");
 
     private final String value;

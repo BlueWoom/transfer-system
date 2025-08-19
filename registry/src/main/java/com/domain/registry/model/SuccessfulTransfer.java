@@ -33,6 +33,8 @@ public final class SuccessfulTransfer extends Transfer {
         verifyNotIncomplete(transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit);
         verifyNotSameOwnerOrBeneficiary(originator, beneficiary);
         varifyNotZeroOrNegativeAmount(transferAmount);
+        verifyNotZeroOrNegativeDebit(debit);
+        verifyNotZeroOrNegativeCredit(credit);
 
         this.transferAmount = transferAmount;
         this.originator = originator;
@@ -46,6 +48,18 @@ public final class SuccessfulTransfer extends Transfer {
     private void varifyNotZeroOrNegativeAmount(BigDecimal transferAmount) {
         if (transferAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RegistryDomainException(RegistryDomainErrorCode.NEGATIVE_AMOUNT, "Transfer amount must be greater than zero.");
+        }
+    }
+
+    private void verifyNotZeroOrNegativeDebit(BigDecimal debit) {
+        if (debit.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RegistryDomainException(RegistryDomainErrorCode.NEGATIVE_AMOUNT, "Debit amount must be greater than zero.");
+        }
+    }
+
+    private void verifyNotZeroOrNegativeCredit(BigDecimal credit) {
+        if (credit.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RegistryDomainException(RegistryDomainErrorCode.NEGATIVE_AMOUNT, "Debit amount must be greater than zero.");
         }
     }
 

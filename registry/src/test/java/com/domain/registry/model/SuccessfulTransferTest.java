@@ -212,4 +212,84 @@ class SuccessfulTransferTest {
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
     }
+
+    @Test
+    void shouldThrowExceptionWhenDebitIsZero() {
+        UUID transferId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        BigDecimal transferAmount = new BigDecimal("100.00");
+        Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
+        Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
+        OffsetDateTime processedAt = OffsetDateTime.now();
+        BigDecimal exchangeRate = new BigDecimal("0.9");
+        BigDecimal credit = new BigDecimal("90.00");
+        BigDecimal debit = new BigDecimal("0");
+
+        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
+                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+        );
+
+        assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDebitIsNegative() {
+        UUID transferId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        BigDecimal transferAmount = new BigDecimal("100.00");
+        Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
+        Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
+        OffsetDateTime processedAt = OffsetDateTime.now();
+        BigDecimal exchangeRate = new BigDecimal("0.9");
+        BigDecimal credit = new BigDecimal("90.00");
+        BigDecimal debit = new BigDecimal("-100");
+
+        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
+                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+        );
+
+        assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreditIsZero() {
+        UUID transferId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        BigDecimal transferAmount = new BigDecimal("100.00");
+        Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
+        Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
+        OffsetDateTime processedAt = OffsetDateTime.now();
+        BigDecimal exchangeRate = new BigDecimal("0.9");
+        BigDecimal credit = new BigDecimal("0");
+        BigDecimal debit = new BigDecimal("90");
+
+        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
+                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+        );
+
+        assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreditIsNegative() {
+        UUID transferId = UUID.randomUUID();
+        UUID requestId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        BigDecimal transferAmount = new BigDecimal("100.00");
+        Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
+        Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
+        OffsetDateTime processedAt = OffsetDateTime.now();
+        BigDecimal exchangeRate = new BigDecimal("0.9");
+        BigDecimal credit = new BigDecimal("-100");
+        BigDecimal debit = new BigDecimal("90");
+
+        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
+                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+        );
+
+        assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
+    }
 }

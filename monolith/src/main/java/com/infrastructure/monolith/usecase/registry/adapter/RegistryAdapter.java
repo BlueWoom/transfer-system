@@ -42,7 +42,7 @@ public class RegistryAdapter implements RegistryPort {
 
     @Override
     public void createSuccessfulTransfer(SuccessfulTransfer transfer) {
-        TransferEntity toUpdate = RegistryMapper.INSTANCE.mapFromEntityToModel(transfer);
+        TransferEntity toCreate = RegistryMapper.INSTANCE.mapFromEntityToModel(transfer);
 
         AccountEntity originatorTransfer = accountRepository.findByOwnerId(transfer.getOriginator().ownerId())
                 .orElseThrow(() -> new IllegalArgumentException("Originator account not found"));
@@ -50,9 +50,9 @@ public class RegistryAdapter implements RegistryPort {
         AccountEntity beneficiaryTransfer = accountRepository.findByOwnerId(transfer.getBeneficiary().ownerId())
                 .orElseThrow(() -> new IllegalArgumentException("Beneficiary account not found"));
 
-        toUpdate.setOriginator(originatorTransfer);
-        toUpdate.setBeneficiary(beneficiaryTransfer);
-        transferRepository.save(toUpdate);
+        toCreate.setOriginator(originatorTransfer);
+        toCreate.setBeneficiary(beneficiaryTransfer);
+        transferRepository.save(toCreate);
     }
 
     @Override

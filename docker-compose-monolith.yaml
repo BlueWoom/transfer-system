@@ -1,4 +1,20 @@
 services:
+  registry-app:
+    build:
+      context: .
+      dockerfile: ./monolith/src/main/resources/Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      -
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/monolith
+      - SPRING_DATASOURCE_USERNAME=monolith
+      - SPRING_DATASOURCE_PASSWORD=monolith
+      - EXCHANGE_API_URL=https://api.frankfurter.app
+
   db:
     image: postgres:latest
     restart: always

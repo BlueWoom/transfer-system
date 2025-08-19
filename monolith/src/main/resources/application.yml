@@ -1,13 +1,38 @@
 spring:
   application:
     name: monolith
-  cache:
-    type: caffeine
+
   threads:
     virtual:
       enabled: true
 
+  cache:
+    type: caffeine
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+
 exchange-api:
-  base-url: https://api.frankfurter.app
+  base-url: ${EXCHANGE_API_URL}
   cache:
     name: currencies
+    size: 500
+    expiration-hours: 24
+  retryer:
+    period-seconds: 100
+    duration-seconds: 10
+    max-attempts: 3

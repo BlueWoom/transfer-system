@@ -68,7 +68,7 @@ public class ErrorDTO {
             case ACCOUNT_NOT_FOUND, TRANSFER_NOT_FOUND,
                  EXCHANGE_RATE_NOT_FOUND -> HttpStatus.NOT_FOUND;
             case DUPLICATED_REQUEST -> HttpStatus.CONFLICT;
-            case UNEXPECTED_ERROR ->  HttpStatus.INTERNAL_SERVER_ERROR;
+            case EXCHANGE_RATE_NEGATIVE, UNEXPECTED_ERROR ->  HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 }

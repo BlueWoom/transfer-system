@@ -131,6 +131,21 @@ class ProcessTransferTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenExchangeRateIsNegative() {
+        ProcessTransferRequest request = new ProcessTransferRequest(UUID.randomUUID(), UUID.randomUUID(), OffsetDateTime.now(), 1L, 2L, BigDecimal.TEN);
+        Account originator = new Account(request.originatorId(), Currency.USD, new BigDecimal("1000.00"));
+        Account beneficiary = new Account(request.beneficiaryId(), Currency.EUR, new BigDecimal("500.00"));
+
+        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
+        when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.originatorId()))).thenReturn(Optional.of(originator));
+        when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
+        when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.of(new BigDecimal("-1")));
+
+        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
+        assertEquals(RegistryDomainErrorCode.EXCHANGE_RATE_NEGATIVE, exception.getErrorCode());
+    }
+
+    @Test
     void shouldThrowExceptionForInsufficientBalance() {
         ProcessTransferRequest request = new ProcessTransferRequest(UUID.randomUUID(), UUID.randomUUID(), OffsetDateTime.now(), 1L, 2L, BigDecimal.valueOf(200));
         Account originator = new Account(request.originatorId(), Currency.USD, new BigDecimal("100.00"));

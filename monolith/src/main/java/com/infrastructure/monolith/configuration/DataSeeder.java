@@ -6,7 +6,6 @@ import com.infrastructure.monolith.database.repository.AccountRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,8 +14,9 @@ import java.util.List;
 import java.util.Random;
 
 @Configuration
-@Profile("dev")
 public class DataSeeder {
+
+    private final Random rand = new Random();
 
     @Bean
     CommandLineRunner seedData(AccountRepository accountRepository) {
@@ -26,7 +26,6 @@ public class DataSeeder {
                 return; // Data already exists, skip seeding
             }
 
-            Random rand = new Random();
             List<AccountEntity> accountEntities = new ArrayList<>();
             List<String> currencies = Arrays.stream(Currency.values()).map(Currency::getValue).toList();
 

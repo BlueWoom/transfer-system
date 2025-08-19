@@ -3,29 +3,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/monolith
     username: monolith
     password: monolith
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        default_schema: public
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 exchange-api:
-  cache:
-    size: 500
-    expiration-hours: 24
-  retryer:
-    period-seconds: 100
-    duration-seconds: 10
-    max-attempts: 3
-
-server:
-  port: 8080
-
-#logging:
-#  level:
-#    org.springframework.transaction: TRACE
-#    org.springframework.orm.jpa.JpaTransactionManager: TRACE
+  base-url: https://api.frankfurter.app

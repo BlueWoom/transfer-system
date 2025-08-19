@@ -38,6 +38,10 @@ public abstract class ProcessTransfer implements Usecase<SuccessfulTransfer, Pro
         BigDecimal exchangeRate = registryPort.getExchangeRate(originator.currency(), beneficiary.currency())
                 .orElseThrow(() -> new RegistryDomainException(RegistryDomainErrorCode.EXCHANGE_RATE_NOT_FOUND, String.format("Exchange rate not found from %s to %s",  originator.currency(), beneficiary.currency())));
 
+        if (exchangeRate.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RegistryDomainException(RegistryDomainErrorCode.EXCHANGE_RATE_NEGATIVE, String.format("Exchange rate from %s to %s is negative: %s", originator.currency(), beneficiary.currency(), exchangeRate));
+        }
+
         BigDecimal debit = request.amount().multiply(exchangeRate);
 
         BigDecimal credit = request.amount();

@@ -1,0 +1,7 @@
+/.idea/
+/.metadata/
+/account/target/
+/transfer/target/
+/monolith/target/
+/registry/target/
+/postgres_data/monolith/
