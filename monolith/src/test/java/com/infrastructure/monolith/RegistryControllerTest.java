@@ -281,6 +281,7 @@ class RegistryControllerTest extends MonolithApplicationTest {
         assertThat(transferEntity.getCreatedAt()).isCloseTo(actualTransfer.createdAt().truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));
         assertThat(transferEntity.getStatus().toString()).isEqualTo(actualTransfer.status().toString());
         assertThat(transferEntity.getProcessedAt()).isCloseTo(actualTransfer.processedAt().truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));
+        assertThat(transferEntity.getErrorCode()).isEqualTo(actualTransfer.errorCode());
 
         assertThat(transferEntity.getTransferAmount()).isNull();
         assertThat(transferEntity.getOriginator()).isNull();

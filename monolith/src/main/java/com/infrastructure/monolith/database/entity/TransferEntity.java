@@ -61,4 +61,7 @@ public class TransferEntity {
 
     @Column(precision = 19, scale = 4)
     private BigDecimal credit;
+
+    @Column
+    private String errorCode;
 }

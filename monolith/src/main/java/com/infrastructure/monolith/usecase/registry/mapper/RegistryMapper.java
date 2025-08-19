@@ -1,5 +1,6 @@
 package com.infrastructure.monolith.usecase.registry.mapper;
 
+import com.domain.registry.exception.RegistryDomainErrorCode;
 import com.domain.registry.model.*;
 import com.infrastructure.monolith.database.entity.AccountEntity;
 import com.infrastructure.monolith.database.entity.TransferEntity;
@@ -23,6 +24,7 @@ public interface RegistryMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", expression = "java(com.infrastructure.monolith.database.entity.TransferStatus.SUCCESS)")
+    @Mapping(target = "errorCode", ignore = true)
     TransferEntity mapFromEntityToModel(SuccessfulTransfer transfer);
 
     @Mapping(target = "id", ignore = true)
@@ -33,10 +35,16 @@ public interface RegistryMapper {
     @Mapping(target = "debit", ignore = true)
     @Mapping(target = "credit", ignore = true)
     @Mapping(target = "status", expression = "java(com.infrastructure.monolith.database.entity.TransferStatus.FAILED)")
+    @Mapping(target="errorCode", source="errorCode", qualifiedByName = "mapErrorCode")
     TransferEntity mapFromEntityToModel(FailedTransfer transfer);
 
     @Named("mapCurrency")
     default Currency mapFromEntityToModel(String currency) {
         return Currency.valueOf(currency);
+    }
+
+    @Named("mapErrorCode")
+    default String mapFromModelToModel(RegistryDomainErrorCode errorCode) {
+        return errorCode.getValue();
     }
 }
