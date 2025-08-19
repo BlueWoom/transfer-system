@@ -19,7 +19,8 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -32,7 +33,7 @@ class ProcessTransferTest {
     @BeforeEach
     void setUp() {
         registryPort = Mockito.mock(RegistryPort.class);
-        processTransfer = new ProcessTransfer(registryPort) {};
+        processTransfer = new ProcessTransfer(registryPort) { };
     }
 
     @Test
@@ -46,7 +47,6 @@ class ProcessTransferTest {
                 BigDecimal.valueOf(100)
         );
 
-        // and originator and beneficiary accounts with sufficient funds
         Account originator = new Account(request.originatorId(), Currency.USD, new BigDecimal("1000.00"));
         Account beneficiary = new Account(request.beneficiaryId(), Currency.EUR, new BigDecimal("500.00"));
         BigDecimal exchangeRate = new BigDecimal("0.85");
@@ -58,27 +58,27 @@ class ProcessTransferTest {
 
         SuccessfulTransfer result = processTransfer.execute(request);
 
-        assertNotNull(result);
-        assertEquals(request.transferId(), result.getTransferId());
-        assertEquals(request.requestId(), result.getRequestId());
-        assertEquals(request.amount(), result.getCredit());
-        assertEquals(request.amount().multiply(exchangeRate), result.getDebit());
+        assertThat(result).isNotNull();
+        assertThat(result.getTransferId()).isEqualTo(request.transferId());
+        assertThat(result.getRequestId()).isEqualTo(request.requestId());
+        assertThat(result.getCredit()).isEqualByComparingTo(request.amount());
+        assertThat(result.getDebit()).isEqualByComparingTo(request.amount().multiply(exchangeRate));
 
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
         verify(registryPort, times(2)).updateAccount(accountCaptor.capture());
         Account updatedOriginator = accountCaptor.getAllValues().stream().filter(a -> a.ownerId().equals(originator.ownerId())).findFirst().orElseThrow();
         Account updatedBeneficiary = accountCaptor.getAllValues().stream().filter(a -> a.ownerId().equals(beneficiary.ownerId())).findFirst().orElseThrow();
 
-        assertEquals(0, originator.balance().subtract(result.getDebit()).compareTo(updatedOriginator.balance()));
-        assertEquals(0, beneficiary.balance().add(result.getCredit()).compareTo(updatedBeneficiary.balance()));
+        assertThat(updatedOriginator.balance()).isEqualByComparingTo(originator.balance().subtract(result.getDebit()));
+        assertThat(updatedBeneficiary.balance()).isEqualByComparingTo(beneficiary.balance().add(result.getCredit()));
 
         ArgumentCaptor<SuccessfulTransfer> successfulTransferCaptor = ArgumentCaptor.forClass(SuccessfulTransfer.class);
         verify(registryPort).createSuccessfulTransfer(successfulTransferCaptor.capture());
         SuccessfulTransfer capturedTransfer = successfulTransferCaptor.getValue();
-        assertEquals(request.requestId(), capturedTransfer.getRequestId());
 
-        assertEquals(capturedTransfer.getOriginator().balance(), updatedOriginator.balance());
-        assertEquals(capturedTransfer.getBeneficiary().balance(), updatedBeneficiary.balance());
+        assertThat(capturedTransfer.getRequestId()).isEqualTo(request.requestId());
+        assertThat(updatedOriginator.balance()).isEqualByComparingTo(capturedTransfer.getOriginator().balance());
+        assertThat(updatedBeneficiary.balance()).isEqualByComparingTo(capturedTransfer.getBeneficiary().balance());
     }
 
     @Test
@@ -86,8 +86,9 @@ class ProcessTransferTest {
         ProcessTransferRequest request = new ProcessTransferRequest(UUID.randomUUID(), UUID.randomUUID(), OffsetDateTime.now(), 1L, 2L, BigDecimal.TEN);
         when(registryPort.checkIfRequestExist(new TransferRequestQuery(request.requestId()))).thenReturn(true);
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.DUPLICATED_REQUEST, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.DUPLICATED_REQUEST);
     }
 
     @Test
@@ -96,9 +97,10 @@ class ProcessTransferTest {
         when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.originatorId()))).thenReturn(Optional.empty());
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, exception.getErrorCode());
-        assertEquals("Originator account not found", exception.getMessage());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasMessage("Originator account not found")
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
     }
 
     @Test
@@ -110,9 +112,10 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.originatorId()))).thenReturn(Optional.of(originator));
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.empty());
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, exception.getErrorCode());
-        assertEquals("Beneficiary account not found", exception.getMessage());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasMessage("Beneficiary account not found")
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
     }
 
     @Test
@@ -126,8 +129,9 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
         when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.empty());
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.EXCHANGE_RATE_NOT_FOUND, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.EXCHANGE_RATE_NOT_FOUND);
     }
 
     @Test
@@ -141,8 +145,9 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
         when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.of(new BigDecimal("-1")));
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.EXCHANGE_RATE_NEGATIVE, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.EXCHANGE_RATE_NEGATIVE);
     }
 
     @Test
@@ -157,8 +162,9 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
         when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.of(exchangeRate));
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.INSUFFICIENT_BALANCE, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.INSUFFICIENT_BALANCE);
     }
 
     @Test
@@ -174,8 +180,9 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
         when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.of(exchangeRate));
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.INVALID_BENEFICIARY, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.INVALID_BENEFICIARY);
     }
 
     @Test
@@ -190,8 +197,9 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
         when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.of(exchangeRate));
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.NEGATIVE_AMOUNT);
     }
 
     @Test
@@ -206,7 +214,8 @@ class ProcessTransferTest {
         when(registryPort.getAccountByIdForUpdate(new AccountQuery(request.beneficiaryId()))).thenReturn(Optional.of(beneficiary));
         when(registryPort.getExchangeRate(originator.currency(), beneficiary.currency())).thenReturn(Optional.of(exchangeRate));
 
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () -> processTransfer.execute(request));
-        assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
+        assertThatThrownBy(() -> processTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.NEGATIVE_AMOUNT);
     }
 }
