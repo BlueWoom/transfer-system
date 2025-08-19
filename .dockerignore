@@ -5,3 +5,4 @@
 /monolith/target/
 /registry/target/
 /postgres_data/monolith/
+/postgres_data/standalone/
