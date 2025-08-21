@@ -17,17 +17,20 @@ public interface RegistryMapper {
     @Mapping(target = "debit", ignore = true)
     @Mapping(target = "credit", ignore = true)
     @Mapping(target = "currency", source = "currency", qualifiedByName = "mapCurrency")
-    Account mapFromModelToEntity(AccountEntity entity);
+    Account mapFromEntityToModel(AccountEntity entity);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     AccountEntity mapFromModelToEntity(Account model);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "status", expression = "java(com.infrastructure.monolith.database.entity.TransferStatus.SUCCESS)")
     @Mapping(target = "errorCode", ignore = true)
     TransferEntity mapFromModelToEntity(SuccessfulTransfer transfer);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "transferAmount", ignore = true)
     @Mapping(target = "originator", ignore = true)
     @Mapping(target = "beneficiary", ignore = true)

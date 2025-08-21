@@ -1,22 +1,26 @@
 package com.infrastructure.account_distributed.usecase.account;
 
-import com.domain.account.model.Account;
-import com.domain.account.port.AccountPort;
-import com.domain.account.usecase.UpdateAccount;
+import com.domain.account.exception.AccountDomainErrorCode;
+import com.domain.account.exception.AccountDomainException;
 import com.domain.account.usecase.request.AccountUpdateRequest;
+import com.infrastructure.account_distributed.database.entity.AccountEntity;
+import com.infrastructure.account_distributed.database.repository.AccountService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UpdateAccountService extends UpdateAccount {
+@RequiredArgsConstructor
+public class UpdateAccountService{
 
-    public UpdateAccountService(AccountPort accountPort, AccountPort accountPort1) {
-        super(accountPort);
-    }
+    private final AccountService accountService;
 
-    @Override
     @Transactional
-    public Account execute(AccountUpdateRequest request) {
-        return super.execute(request);
+    public void execute(AccountUpdateRequest request) {
+        AccountEntity account = accountService.findByOwnerId(request.ownerId())
+                .orElseThrow(() -> new AccountDomainException(AccountDomainErrorCode.ACCOUNT_NOT_FOUND, String.format("Account with owner id: %s not found", request.ownerId())));
+
+        account.setBalance(request.amount());
+        accountService.save(account);
     }
 }

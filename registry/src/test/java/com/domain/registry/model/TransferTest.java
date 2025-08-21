@@ -6,12 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class TransferTest {
@@ -29,9 +27,6 @@ class TransferTest {
         UUID transferId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
-        BigDecimal transferAmount = BigDecimal.valueOf(500.00);
-        Account originator = mock(Account.class);
-        Account beneficiary = mock(Account.class);
         ConcreteTransfer transfer = new ConcreteTransfer(transferId, requestId, createdAt);
 
         assertNotNull(transfer);

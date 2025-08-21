@@ -13,6 +13,4 @@ public interface AccountPort {
     Optional<Account> getAccount(AccountQuery query);
 
     PageResult<Account> getAllAccounts(AccountPageQuery request);
-
-    void updateAccount(UpdateAccountQuery query);
 }

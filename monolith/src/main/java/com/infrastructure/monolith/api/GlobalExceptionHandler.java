@@ -6,12 +6,14 @@ import com.infrastructure.monolith.api.dto.ErrorDTO;
 import com.infrastructure.monolith.api.dto.TransferDTO;
 import com.infrastructure.monolith.api.mapper.RegistryMapper;
 import com.infrastructure.monolith.usecase.registry.TransferProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.OffsetDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,6 +37,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleGenericException(Exception ex) {
+        log.error(ex.getMessage(), ex);
         ErrorDTO errorDTO = new ErrorDTO(ex.getMessage(), OffsetDateTime.now());
         return new ResponseEntity<>(errorDTO, errorDTO.getHttpStatus());
     }

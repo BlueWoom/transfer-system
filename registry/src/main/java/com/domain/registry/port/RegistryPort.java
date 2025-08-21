@@ -1,7 +1,6 @@
 package com.domain.registry.port;
 
-import com.domain.registry.model.*;
-import com.domain.registry.port.query.AccountQuery;
+import com.domain.registry.model.Currency;
 import com.domain.registry.port.query.TransferRequestQuery;
 
 import java.math.BigDecimal;
@@ -12,16 +11,6 @@ public interface RegistryPort {
     // Transfer operations
 
     boolean checkIfRequestExist(TransferRequestQuery transferRequestQuery);
-
-    void createFailedTransfer(FailedTransfer transfer);
-
-    void createSuccessfulTransfer(SuccessfulTransfer transfer);
-
-    // Account operations
-
-    Optional<Account> getAccountByIdForUpdate(AccountQuery query);
-
-    void updateAccount(Account account);
 
     // Exchange rate operations
 

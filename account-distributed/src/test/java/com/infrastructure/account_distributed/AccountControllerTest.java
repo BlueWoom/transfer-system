@@ -4,7 +4,7 @@ import com.domain.account.exception.AccountDomainErrorCode;
 import com.infrastructure.account_distributed.api.dto.AccountDTO;
 import com.infrastructure.account_distributed.api.dto.ErrorDTO;
 import com.infrastructure.account_distributed.database.entity.AccountEntity;
-import com.infrastructure.account_distributed.database.repository.AccountRepository;
+import com.infrastructure.account_distributed.database.repository.AccountService;
 import com.infrastructure.account_distributed.queue.message.UpdateAccountMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class AccountControllerTest extends AccountDistributedApplicationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Test
     void getAccountSuccessfully() {
@@ -78,7 +78,7 @@ class AccountControllerTest extends AccountDistributedApplicationTest {
         rabbitTemplate.convertAndSend(fanoutExchangeName, "", message);
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
-            Optional<AccountEntity> account = accountRepository.findByOwnerId(message.ownerId());
+            Optional<AccountEntity> account = accountService.findByOwnerId(message.ownerId());
 
             assertThat(account).isPresent();
             assertThat(account.get().getBalance()).isEqualByComparingTo(new BigDecimal("666.00"));

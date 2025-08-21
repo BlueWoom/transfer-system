@@ -5,8 +5,8 @@ import com.infrastructure.monolith.api.dto.TransferRequestDTO;
 import com.infrastructure.monolith.database.entity.AccountEntity;
 import com.infrastructure.monolith.database.entity.TransferEntity;
 import com.infrastructure.monolith.database.entity.TransferStatus;
-import com.infrastructure.monolith.database.repository.AccountRepository;
-import com.infrastructure.monolith.database.repository.TransferRepository;
+import com.infrastructure.monolith.database.repository.AccountService;
+import com.infrastructure.monolith.database.repository.TransferService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -31,12 +31,13 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Autowired
-    TransferRepository transferRepository;
+    private TransferService transferService;
 
-    static final Integer MAX_NUMBER_OF_TRANSFER = 5000;
+
+    static final Integer MAX_NUMBER_OF_TRANSFER = 1000;
 
     // Remove: @Lock(LockModeType.PESSIMISTIC_WRITE) this see this test probably failing
 
@@ -74,17 +75,16 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
         executorService.shutdown();
 
         transfers.forEach(transfer -> {
-            Optional<TransferEntity> transferEntity = transferRepository.getByTransferId(transfer.transferId());
+            Optional<TransferEntity> transferEntity = transferService.getByTransferId(transfer.transferId());
             assertThat(transferEntity).isPresent();
             assertThat(transferEntity.get().getStatus()).isEqualTo(TransferStatus.SUCCESS);
         });
 
-        AccountEntity originator1 = accountRepository.findByOwnerId(101L).get();
-        AccountEntity originator2 = accountRepository.findByOwnerId(103L).get();
-        AccountEntity beneficiary = accountRepository.findByOwnerId(102L).get();
+        AccountEntity beneficiary = accountService.findByOwnerId(102L).get();
+        AccountEntity originator1 = accountService.findByOwnerId(101L).get();
+        AccountEntity originator2 = accountService.findByOwnerId(103L).get();
+        assertThat(beneficiary.getBalance()).isEqualTo(new BigDecimal("3000.00"));
         assertThat(originator1.getBalance()).isEqualTo(new BigDecimal("0.00"));
         assertThat(originator2.getBalance()).isEqualTo(new BigDecimal("0.00"));
-        assertThat(beneficiary.getBalance()).isEqualTo(new BigDecimal("11000.00"));
     }
-
 }

@@ -9,5 +9,4 @@ public record ProcessTransferRequest(UUID transferId,
                                      OffsetDateTime createdAt,
                                      Long originatorId,
                                      Long beneficiaryId,
-                                     BigDecimal amount) {
-}
+                                     BigDecimal amount) { }

@@ -1,11 +1,14 @@
 spring:
   profiles:
     active: test
+
   cache:
     type: caffeine
+
   threads:
     virtual:
       enabled: true
+
   datasource:
     url: jdbc:postgresql://localhost:5432/monolith
     username: monolith
@@ -21,3 +24,13 @@ spring:
       hibernate:
         default_schema: public
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+# logging:
+  # level:
+    # JPA / Hibernate SQL Logging
+    # org.hibernate.SQL: DEBUG
+    # org.hibernate.orm.jdbc.bind: TRACE
+
+    # Spring Transaction Logging
+    # org.springframework.transaction: TRACE
+    # org.springframework.orm.jpa: DEBUG

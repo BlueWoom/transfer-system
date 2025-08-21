@@ -1,22 +1,23 @@
 package com.infrastructure.account_distributed.configuration;
 
 import com.infrastructure.account_distributed.database.entity.AccountEntity;
-import com.infrastructure.account_distributed.database.repository.AccountRepository;
+import com.infrastructure.account_distributed.database.repository.AccountService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class DataSeeder {
 
     @Bean
-    CommandLineRunner seedData(AccountRepository accountRepository) {
+    CommandLineRunner seedData(AccountService accountService) {
         return args -> {
 
-            if (accountRepository.count() != 0) {
+            if (accountService.count() != 0) {
                 return; // Data already exists, skip seeding
             }
 
@@ -33,7 +34,7 @@ public class DataSeeder {
                 accountEntities.add(account);
             }
 
-            accountRepository.saveAll(accountEntities);
+            accountService.saveAll(accountEntities);
         };
     }
 }

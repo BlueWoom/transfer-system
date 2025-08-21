@@ -20,6 +20,9 @@ public class AccountEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(name = "owner_id", nullable = false, unique = true, updatable = false)
     private Long ownerId;
 

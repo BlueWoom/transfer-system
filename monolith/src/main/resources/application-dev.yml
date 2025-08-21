@@ -1,8 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/monolith
-    username: monolith
-    password: monolith
-
-exchange-api:
-  base-url: https://api.frankfurter.app

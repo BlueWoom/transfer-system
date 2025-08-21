@@ -2,7 +2,7 @@ package com.infrastructure.monolith.configuration;
 
 import com.domain.registry.model.Currency;
 import com.infrastructure.monolith.database.entity.AccountEntity;
-import com.infrastructure.monolith.database.repository.AccountRepository;
+import com.infrastructure.monolith.database.repository.AccountService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ public class DataSeeder {
     private final Random rand = new Random();
 
     @Bean
-    CommandLineRunner seedData(AccountRepository accountRepository) {
+    CommandLineRunner seedData(AccountService accountRepository) {
         return args -> {
 
             if (accountRepository.count() != 0) {
