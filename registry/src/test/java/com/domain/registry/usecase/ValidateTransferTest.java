@@ -6,9 +6,6 @@ import com.domain.registry.model.Account;
 import com.domain.registry.model.Currency;
 import com.domain.registry.model.SuccessfulTransfer;
 import com.domain.registry.port.RegistryPort;
-import com.domain.registry.port.query.AccountQuery;
-import com.domain.registry.port.query.TransferRequestQuery;
-import com.domain.registry.usecase.request.ProcessTransferRequest;
 import com.domain.registry.usecase.request.ValidateTransferRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class ValidateTransferTest {
 
@@ -49,7 +45,6 @@ class ValidateTransferTest {
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getExchangeRate(Currency.USD, Currency.EUR)).thenReturn(Optional.of(exchangeRate));
 
         SuccessfulTransfer result = validateTransfer.execute(request);
@@ -62,24 +57,6 @@ class ValidateTransferTest {
     }
 
     @Test
-    void shouldThrowExceptionForDuplicatedRequest() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                BigDecimal.valueOf(100)
-        );
-
-        when(registryPort.checkIfRequestExist(new TransferRequestQuery(request.requestId()))).thenReturn(true);
-
-        assertThatThrownBy(() -> validateTransfer.execute(request))
-                .isInstanceOf(RegistryDomainException.class)
-                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.DUPLICATED_REQUEST);
-    }
-
-    @Test
     void shouldThrowExceptionWhenExchangeRateNotFound() {
         ValidateTransferRequest request = new ValidateTransferRequest(
                 UUID.randomUUID(),
@@ -89,9 +66,6 @@ class ValidateTransferTest {
                 new Account(2L, Currency.EUR, new BigDecimal("500.00")),
                 BigDecimal.valueOf(100)
         );
-
-
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
 
         assertThatThrownBy(() -> validateTransfer.execute(request))
                 .isInstanceOf(RegistryDomainException.class)
@@ -109,7 +83,6 @@ class ValidateTransferTest {
                 new BigDecimal("100")
         );
 
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(new BigDecimal("-1")));
 
         assertThatThrownBy(() -> validateTransfer.execute(request))
@@ -130,7 +103,6 @@ class ValidateTransferTest {
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(exchangeRate));
 
         assertThatThrownBy(() -> validateTransfer.execute(request))
@@ -151,7 +123,6 @@ class ValidateTransferTest {
 
         BigDecimal exchangeRate = new BigDecimal("1.00");
 
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(exchangeRate));
 
         assertThatThrownBy(() -> validateTransfer.execute(request))
@@ -172,7 +143,6 @@ class ValidateTransferTest {
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(exchangeRate));
 
         assertThatThrownBy(() -> validateTransfer.execute(request))
@@ -193,7 +163,6 @@ class ValidateTransferTest {
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 
-        when(registryPort.checkIfRequestExist(any(TransferRequestQuery.class))).thenReturn(false);
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(exchangeRate));
 
         assertThatThrownBy(() -> validateTransfer.execute(request))

@@ -26,12 +26,17 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         default_schema: public
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      mode: always
 
 management:
   endpoints:
@@ -40,9 +45,9 @@ management:
         include: "*"
 
 rabbitmq-config:
-  exchange: "registry.fanout"
-  dlx: "registry.dlx"
-  dlq: "registry.dlq"
+  exchange: "account.fanout"
+  dlx: "account.dlx"
+  dlq: "account.dlq"
 
 server:
   port: 8082

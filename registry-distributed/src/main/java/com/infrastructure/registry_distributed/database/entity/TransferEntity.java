@@ -1,4 +1,4 @@
-package com.infrastructure.account_distributed.database.entity;
+package com.infrastructure.registry_distributed.database.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +25,9 @@ public class TransferEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(nullable = false, unique = true, updatable = false)
     private UUID transferId;

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Check(constraints = "balance >= 0")
+@ToString
 public class AccountEntity {
 
     @Id

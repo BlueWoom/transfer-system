@@ -5,7 +5,7 @@ import com.infrastructure.account_distributed.api.dto.AccountDTO;
 import com.infrastructure.account_distributed.api.dto.ErrorDTO;
 import com.infrastructure.account_distributed.database.entity.AccountEntity;
 import com.infrastructure.account_distributed.database.repository.AccountService;
-import com.infrastructure.account_distributed.queue.message.UpdateAccountMessage;
+import com.infrastructure.account_distributed.queue.message.AccountUpdateMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -74,7 +74,7 @@ class AccountControllerTest extends AccountDistributedApplicationTest {
 
     @Test
     void whenMessageIsPublished_thenListenerShouldReceiveIt() {
-        UpdateAccountMessage message = new UpdateAccountMessage(101L, new BigDecimal("666.00"));
+        AccountUpdateMessage message = new AccountUpdateMessage(101L, new BigDecimal("666.00"));
         rabbitTemplate.convertAndSend(fanoutExchangeName, "", message);
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -87,11 +87,11 @@ class AccountControllerTest extends AccountDistributedApplicationTest {
 
     @Test
     void whenListenerFails_thenMessageGoesToDLQ() {
-        UpdateAccountMessage failingMessage = new UpdateAccountMessage(666L, new BigDecimal("1000.00"));
+        AccountUpdateMessage failingMessage = new AccountUpdateMessage(666L, new BigDecimal("1000.00"));
         rabbitTemplate.convertAndSend(fanoutExchangeName, "", failingMessage);
 
         await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
-            UpdateAccountMessage messageFromDLQ = (UpdateAccountMessage) rabbitTemplate.receiveAndConvert(deadLetterQueueName);
+            AccountUpdateMessage messageFromDLQ = (AccountUpdateMessage) rabbitTemplate.receiveAndConvert(deadLetterQueueName);
             assertThat(messageFromDLQ).isNotNull();
             assertThat(messageFromDLQ).isEqualTo(failingMessage);
         });

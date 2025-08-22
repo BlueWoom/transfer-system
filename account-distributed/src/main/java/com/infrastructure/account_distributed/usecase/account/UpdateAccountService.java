@@ -6,12 +6,14 @@ import com.domain.account.usecase.request.AccountUpdateRequest;
 import com.infrastructure.account_distributed.database.entity.AccountEntity;
 import com.infrastructure.account_distributed.database.repository.AccountService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class UpdateAccountService{
+public class UpdateAccountService {
 
     private final AccountService accountService;
 
@@ -20,7 +22,8 @@ public class UpdateAccountService{
         AccountEntity account = accountService.findByOwnerId(request.ownerId())
                 .orElseThrow(() -> new AccountDomainException(AccountDomainErrorCode.ACCOUNT_NOT_FOUND, String.format("Account with owner id: %s not found", request.ownerId())));
 
-        account.setBalance(request.amount());
-        accountService.save(account);
+        account.setBalance(request.balance());
+        AccountEntity updatedAccount = accountService.save(account);
+        log.info("Updated Account {} SUCCESSFULLY", updatedAccount);
     }
 }

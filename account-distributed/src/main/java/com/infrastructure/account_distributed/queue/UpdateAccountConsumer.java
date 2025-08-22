@@ -1,7 +1,7 @@
 package com.infrastructure.account_distributed.queue;
 
 import com.infrastructure.account_distributed.queue.mapper.UpdateAccountMessageMapper;
-import com.infrastructure.account_distributed.queue.message.UpdateAccountMessage;
+import com.infrastructure.account_distributed.queue.message.AccountUpdateMessage;
 import com.infrastructure.account_distributed.usecase.account.UpdateAccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ public class UpdateAccountConsumer {
     private final UpdateAccountService updateAccount;
 
     @RabbitListener(queues = "#{instanceUpdateQueue.name}")
-    public void handleDataUpdate(UpdateAccountMessage message) {
+    public void handleDataUpdate(AccountUpdateMessage message) {
         updateAccount.execute(UpdateAccountMessageMapper.INSTANCE.mapFromMessageToModel(message));
     }
 }

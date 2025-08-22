@@ -56,6 +56,7 @@ services:
       - SPRING_RABBITMQ_USERNAME=distributed
       - SPRING_RABBITMQ_PASSWORD=distributed
 
+  # -- Account management for transfer system --
   account-distributed-app:
     build:
       context: .
@@ -81,6 +82,34 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=distributed
       - SPRING_RABBITMQ_PASSWORD=distributed
+
+  # -- Registry management for transfer system --
+  registry-distributed-app:
+    build:
+      context: .
+      dockerfile: ./registry-distributed/src/main/resources/Dockerfile
+    restart: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      eureka:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      db_registry:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_EUREKA_SERVICE=http://eureka:8761
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_registry:5432/registry
+      - SPRING_DATASOURCE_USERNAME=registry
+      - SPRING_DATASOURCE_PASSWORD=registry
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=distributed
+      - SPRING_RABBITMQ_PASSWORD=distributed
+      - EXCHANGE_API_URL=https://api.frankfurter.app
 
   # -- Database for Account Service --
   db_account:

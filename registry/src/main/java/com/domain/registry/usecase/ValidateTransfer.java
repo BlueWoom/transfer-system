@@ -5,7 +5,6 @@ import com.domain.registry.exception.RegistryDomainException;
 import com.domain.registry.model.Account;
 import com.domain.registry.model.SuccessfulTransfer;
 import com.domain.registry.port.RegistryPort;
-import com.domain.registry.port.query.TransferRequestQuery;
 import com.domain.registry.usecase.request.ValidateTransferRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +20,6 @@ public abstract class ValidateTransfer implements Usecase<SuccessfulTransfer, Va
 
     @Override
     public SuccessfulTransfer execute(ValidateTransferRequest request) {
-        // Check transfer request does not exist
-        if(registryPort.checkIfRequestExist(new TransferRequestQuery(request.requestId()))) {
-            throw new RegistryDomainException(RegistryDomainErrorCode.DUPLICATED_REQUEST, String.format("Transfer with requestId %s is duplicated", request.requestId()));
-        }
-
         Account originator = request.originator();
         Account beneficiary = request.beneficiary();
 

@@ -43,8 +43,8 @@ VALUES (1001,
         'SUCCESS', -- status
         '2025-08-15T10:00:15Z', -- processedAt
         1.0850000000, -- exchangeRate
-        100.0000, -- debit (amount from originator)
-        108.5000 -- credit (amount to beneficiary after conversion)
+        100.0000, -- debit (balance from originator)
+        108.5000 -- credit (balance to beneficiary after conversion)
        );
 
 -- 2. A failed transfer from owner 102 to 103 (e.g., due to a processing error)

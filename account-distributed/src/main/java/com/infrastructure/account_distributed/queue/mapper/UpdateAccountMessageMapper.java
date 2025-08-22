@@ -1,7 +1,7 @@
 package com.infrastructure.account_distributed.queue.mapper;
 
 import com.domain.account.usecase.request.AccountUpdateRequest;
-import com.infrastructure.account_distributed.queue.message.UpdateAccountMessage;
+import com.infrastructure.account_distributed.queue.message.AccountUpdateMessage;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -10,5 +10,5 @@ public interface UpdateAccountMessageMapper {
 
     UpdateAccountMessageMapper INSTANCE = Mappers.getMapper(UpdateAccountMessageMapper.class);
 
-    AccountUpdateRequest mapFromMessageToModel(UpdateAccountMessage message);
+    AccountUpdateRequest mapFromMessageToModel(AccountUpdateMessage message);
 }

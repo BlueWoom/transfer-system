@@ -8,6 +8,7 @@
 /gateway/target/
 /transfer-distributed/target/
 /account-distributed/target/
+/registry-distributed/target/
 /rabbitmq_data/
 /postgres_data/monolith/
 /postgres_data/standalone/

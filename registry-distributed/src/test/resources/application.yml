@@ -1,0 +1,53 @@
+spring:
+  profiles:
+    active: test
+
+  cloud:
+    config:
+      enabled: false
+
+  cache:
+    type: caffeine
+
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 100
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+rabbitmq-config:
+  account-distributed:
+    exchange: "account.fanout"
+    dlx: "account.dlx"
+    dlq: "account.dlq"
+  registry-distributed:
+    exchange: "registry.exchange"
+    queue: "registry.queue"
+    routing-key: "registry.work"
+    dlx: "registry.dlx"
+    dlq: "registry.dlq"
+
+eureka:
+  client:
+    enabled: false
+
+# logging:
+  # level:
+    # JPA / Hibernate SQL Logging
+    # org.hibernate.SQL: DEBUG
+    # org.hibernate.orm.jdbc.bind: TRACE
+
+    # Spring Transaction Logging
+    # org.springframework.transaction: TRACE
+    # org.springframework.orm.jpa: DEBUG

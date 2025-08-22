@@ -40,5 +40,6 @@
         <module>gateway</module>
         <module>transfer-distributed</module>
         <module>account-distributed</module>
+        <module>registry-distributed</module>
     </modules>
 </project>

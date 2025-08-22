@@ -10,9 +10,6 @@ spring:
       enabled: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/monolith
-    username: monolith
-    password: monolith
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 100

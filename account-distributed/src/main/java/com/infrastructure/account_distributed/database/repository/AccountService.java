@@ -31,8 +31,8 @@ public class AccountService {
         return accountRepository.count();
     }
 
-    public void save(AccountEntity account) {
-        accountRepository.save(account);
+    public AccountEntity save(AccountEntity account) {
+        return accountRepository.save(account);
     }
 
     public void saveAll(List<AccountEntity> accountEntities) {

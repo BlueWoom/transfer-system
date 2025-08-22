@@ -38,6 +38,11 @@ public class ProcessTransferService extends ProcessTransfer {
     @Transactional
     public SuccessfulTransfer execute(ProcessTransferRequest request) {
         try {
+            // Prevent duplicated requests
+            if(transferService.existsByRequestId(request.requestId())) {
+                throw new RegistryDomainException(RegistryDomainErrorCode.DUPLICATED_REQUEST, String.format("Transfer with requestId %s is duplicated", request.requestId()));
+            }
+
             // Fetch LOCK and ensure we don't lose this references
             AccountEntity originator = accountService.findByOwnerIdForUpdate(request.originatorId())
                     .orElseThrow(() -> new RegistryDomainException(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, "Originator account not found"));

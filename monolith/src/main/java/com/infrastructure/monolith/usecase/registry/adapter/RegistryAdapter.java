@@ -2,8 +2,6 @@ package com.infrastructure.monolith.usecase.registry.adapter;
 
 import com.domain.registry.model.Currency;
 import com.domain.registry.port.RegistryPort;
-import com.domain.registry.port.query.TransferRequestQuery;
-import com.infrastructure.monolith.database.repository.TransferService;
 import com.infrastructure.monolith.external.ExchangeRateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,16 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RegistryAdapter implements RegistryPort {
 
-    private final TransferService transferRepository;
-
     private final ExchangeRateService exchangeRateService;
-
-    // Transfer operations
-
-    @Override
-    public boolean checkIfRequestExist(TransferRequestQuery transferRequestQuery) {
-        return transferRepository.existsByRequestId(transferRequestQuery.requestId());
-    }
 
     // Exchange rate operations
 
