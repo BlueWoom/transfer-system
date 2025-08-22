@@ -1,5 +1,6 @@
 package com.infrastructure.monolith.api.dto;
 
+import com.domain.accept.exception.AcceptDomainErrorCode;
 import com.domain.account.exception.AccountDomainErrorCode;
 import com.domain.registry.exception.RegistryDomainErrorCode;
 import lombok.Getter;
@@ -17,6 +18,8 @@ public class ErrorDTO {
 
     private final UUID transactionId;
 
+    private final UUID requestId;
+
     private final OffsetDateTime timestamp;
 
     private final HttpStatus httpStatus;
@@ -25,6 +28,7 @@ public class ErrorDTO {
         this.errorCode = null;
         this.message = null;
         this.transactionId = null;
+        this.requestId = null;
         this.timestamp = null;
         this.httpStatus = null;
     }
@@ -33,6 +37,7 @@ public class ErrorDTO {
         this.errorCode = errorCode.getValue();
         this.message = message;
         this.transactionId = transactionId;
+        this.requestId = null;
         this.timestamp = timestamp;
         this.httpStatus = convertAccountCode(errorCode);
     }
@@ -41,14 +46,25 @@ public class ErrorDTO {
         this.errorCode = errorCode.getValue();
         this.message = message;
         this.transactionId = transactionId;
+        this.requestId = null;
         this.timestamp = timestamp;
         this.httpStatus = convertRegistryCode(errorCode);
+    }
+
+    public ErrorDTO(AcceptDomainErrorCode errorCode, String message, UUID transactionId, UUID requestId, OffsetDateTime timestamp) {
+        this.errorCode = errorCode.getValue();
+        this.message = message;
+        this.transactionId = transactionId;
+        this.requestId = requestId;
+        this.timestamp = timestamp;
+        this.httpStatus = convertAcceptTransferCode(errorCode);
     }
 
     public ErrorDTO(String message, OffsetDateTime timestamp) {
         this.errorCode = "Unexpected error";
         this.message = message;
         this.transactionId = null;
+        this.requestId = null;
         this.timestamp = timestamp;
         this.httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
     }
@@ -67,8 +83,14 @@ public class ErrorDTO {
                   INSUFFICIENT_BALANCE-> HttpStatus.BAD_REQUEST;
             case ACCOUNT_NOT_FOUND, TRANSFER_NOT_FOUND,
                  EXCHANGE_RATE_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case DUPLICATED_REQUEST -> HttpStatus.CONFLICT;
             case EXCHANGE_RATE_NEGATIVE, UNEXPECTED_ERROR ->  HttpStatus.INTERNAL_SERVER_ERROR;
+        };
+    }
+
+    public static HttpStatus convertAcceptTransferCode(AcceptDomainErrorCode errorCode) {
+        return switch (errorCode) {
+            case DUPLICATED_REQUEST ->  HttpStatus.CONFLICT;
+            case TRANSFER_NOT_FOUND -> HttpStatus.NOT_FOUND;
         };
     }
 }

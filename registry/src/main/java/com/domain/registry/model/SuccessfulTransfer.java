@@ -27,8 +27,8 @@ public final class SuccessfulTransfer extends Transfer {
 
     private final BigDecimal credit;
 
-    public SuccessfulTransfer(UUID transferId, UUID requestId, OffsetDateTime createdAt, BigDecimal transferAmount, Account originator, Account beneficiary, OffsetDateTime processedAt, BigDecimal exchangeRate, BigDecimal debit, BigDecimal credit) {
-        super(transferId, requestId, createdAt);
+    public SuccessfulTransfer(UUID transferId, OffsetDateTime createdAt, BigDecimal transferAmount, Account originator, Account beneficiary, OffsetDateTime processedAt, BigDecimal exchangeRate, BigDecimal debit, BigDecimal credit) {
+        super(transferId, createdAt);
 
         verifyNotIncomplete(transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit);
         verifyNotSameOwnerOrBeneficiary(originator, beneficiary);

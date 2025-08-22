@@ -9,13 +9,10 @@ import com.infrastructure.registry_distributed.database.repository.AccountServic
 import com.infrastructure.registry_distributed.database.repository.TransferService;
 import com.infrastructure.registry_distributed.queue.AccountUpdateProducer;
 import com.infrastructure.registry_distributed.queue.TransferRequestConsumer;
-import com.infrastructure.registry_distributed.queue.message.AccountUpdateMessage;
 import com.infrastructure.registry_distributed.queue.message.TransferRequestMessage;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,12 +67,11 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
     @Test
     void processTransferSuccessfully() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 102L;
         BigDecimal amount = new BigDecimal("100");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -106,7 +102,6 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
             assertThat(transferEntityOpt).isPresent();
             assertThat(transferEntityOpt.get().getTransferId()).isEqualTo(transferId);
-            assertThat(transferEntityOpt.get().getRequestId()).isEqualTo(requestId);
             assertThat(transferEntityOpt.get().getCreatedAt()).isCloseTo(createdAt.truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));
             assertThat(transferEntityOpt.get().getTransferAmount()).isEqualTo(new BigDecimal("100.0000"));
             assertThat(transferEntityOpt.get().getOriginator().getId()).isEqualTo(originatorEntity.getId());
@@ -120,38 +115,13 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
     }
 
     @Test
-    void shouldFailIfRequestIsDuplicated() {
-        UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.fromString("d3c4b5a6-9870-6543-2109-876fedcba321");
-        OffsetDateTime createdAt = OffsetDateTime.now();
-        Long originatorId = 101L;
-        Long beneficiaryId = 102L;
-        BigDecimal amount = new BigDecimal("100");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
-
-        rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
-
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-            AccountEntity originatorEntity = accountService.findByOwnerId(originatorId).get();
-            assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
-
-            AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
-            assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("2500.00");
-
-            Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.DUPLICATED_REQUEST);
-        });
-    }
-
-    @Test
     void shouldFailIfTransferOriginatorIsNotFound() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 666L;
         Long beneficiaryId = 102L;
         BigDecimal amount = new BigDecimal("100");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -160,19 +130,18 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("2500.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
         });
     }
 
     @Test
     void shouldFailIfTransferBeneficiaryIsNotFound() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 666L;
         BigDecimal amount = new BigDecimal("100");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -181,19 +150,18 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
         });
     }
 
     @Test
     void shouldFailIfTransferAmountIsZero() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 102L;
         BigDecimal amount = new BigDecimal("0");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -205,19 +173,18 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.NEGATIVE_AMOUNT);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.NEGATIVE_AMOUNT);
         });
     }
 
     @Test
     void shouldFailIfTransferAmountIsNegative() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 102L;
         BigDecimal amount = new BigDecimal("-100");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -229,19 +196,18 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.NEGATIVE_AMOUNT);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.NEGATIVE_AMOUNT);
         });
     }
 
     @Test
     void shouldFailIfTransferHasSameOriginatorAndBeneficiary() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 101L;
         BigDecimal amount = new BigDecimal("0");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -250,19 +216,18 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("5000.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.INVALID_BENEFICIARY);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.INVALID_BENEFICIARY);
         });
     }
 
     @Test
     void shouldFailIfBalanceIsInsufficient() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 102L;
         BigDecimal amount = new BigDecimal("10000");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -274,19 +239,18 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.INSUFFICIENT_BALANCE);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.INSUFFICIENT_BALANCE);
         });
     }
 
     @Test
     void shouldFailIfExchangeRateIsNotFound() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Long originatorId = 101L;
         Long beneficiaryId = 104L;
         BigDecimal amount = new BigDecimal("0");
-        TransferRequestMessage message = new TransferRequestMessage(transferId, requestId, createdAt, originatorId, beneficiaryId, amount);
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
@@ -298,14 +262,13 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
             assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
 
             Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
-            assertFailedMessage(transferEntityOpt, transferId, requestId, createdAt, RegistryDomainErrorCode.EXCHANGE_RATE_NOT_FOUND);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.EXCHANGE_RATE_NOT_FOUND);
         });
     }
 
-    private static void assertFailedMessage(Optional<TransferEntity> transferEntityOpt, UUID transferId, UUID requestId, OffsetDateTime createdAt, RegistryDomainErrorCode errorCode) {
+    private static void assertFailedMessage(Optional<TransferEntity> transferEntityOpt, UUID transferId, OffsetDateTime createdAt, RegistryDomainErrorCode errorCode) {
         assertThat(transferEntityOpt).isPresent();
         assertThat(transferEntityOpt.get().getTransferId()).isEqualTo(transferId);
-        assertThat(transferEntityOpt.get().getRequestId()).isEqualTo(requestId);
         assertThat(transferEntityOpt.get().getCreatedAt()).isCloseTo(createdAt.withOffsetSameInstant(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS), within(1, ChronoUnit.SECONDS));
         assertThat(transferEntityOpt.get().getTransferAmount()).isNull();
         assertThat(transferEntityOpt.get().getOriginator()).isNull();

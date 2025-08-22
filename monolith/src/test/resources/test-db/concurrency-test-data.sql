@@ -1,5 +1,5 @@
 -- Clean up existing data to ensure a fresh start for tests
-TRUNCATE TABLE transfer_entity, account_entity RESTART IDENTITY;
+TRUNCATE TABLE request_entity, transfer_entity, account_entity RESTART IDENTITY;
 
 -- =================================================================
 --  ACCOUNTS DATA

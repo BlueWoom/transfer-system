@@ -15,11 +15,6 @@ public class TransferService {
     private final TransferRepository transferRepository;
 
     @Transactional(readOnly = true)
-    public boolean existsByRequestId(UUID uuid) {
-        return transferRepository.existsByRequestId(uuid);
-    }
-
-    @Transactional(readOnly = true)
     public Optional<TransferEntity> getByTransferId(UUID uuid) {
         return transferRepository.getByTransferId(uuid);
     }

@@ -15,7 +15,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldCreateSuccessfulTransferSuccessfully() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -25,11 +24,10 @@ class SuccessfulTransferTest {
         BigDecimal debit = new BigDecimal("90.00");
         BigDecimal credit = new BigDecimal("100.00");
 
-        SuccessfulTransfer transfer = new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit);
+        SuccessfulTransfer transfer = new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit);
 
         assertNotNull(transfer);
         assertEquals(transferId, transfer.getTransferId());
-        assertEquals(requestId, transfer.getRequestId());
         assertEquals(createdAt, transfer.getCreatedAt());
         assertEquals(transferAmount, transfer.getTransferAmount());
         assertEquals(originator, transfer.getOriginator());
@@ -43,7 +41,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenTransferAmountIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
         Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
@@ -53,7 +50,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, null, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, null, originator, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -62,7 +59,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenOriginatorIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
@@ -72,7 +68,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, null, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, null, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -81,7 +77,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenBeneficiaryIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -91,7 +86,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, null, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, null, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -100,7 +95,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenOriginatorAndBeneficiaryAreTheSame() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(2L, Currency.USD, new BigDecimal("1000.00"));
@@ -112,7 +106,7 @@ class SuccessfulTransferTest {
         Account sameBeneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, sameBeneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, sameBeneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_BENEFICIARY, exception.getErrorCode());
@@ -121,7 +115,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenTransferAmountIsNegative() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
         Account beneficiary = new Account(2L, Currency.EUR, new BigDecimal("500.00"));
@@ -131,7 +124,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, new BigDecimal("-10.00"), originator, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, new BigDecimal("-10.00"), originator, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
@@ -140,7 +133,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenProcessedAtIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -150,7 +142,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, null, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, null, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -159,7 +151,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenExchangeRateIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -169,7 +160,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, null, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, null, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -178,7 +169,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenDebitIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -188,7 +178,7 @@ class SuccessfulTransferTest {
         BigDecimal credit = new BigDecimal("100.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, null, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, null, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -197,7 +187,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenCreditIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -207,7 +196,7 @@ class SuccessfulTransferTest {
         BigDecimal debit = new BigDecimal("90.00");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, null)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, null)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -216,7 +205,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenDebitIsZero() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -227,7 +215,7 @@ class SuccessfulTransferTest {
         BigDecimal debit = new BigDecimal("0");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
@@ -236,7 +224,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenDebitIsNegative() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -247,7 +234,7 @@ class SuccessfulTransferTest {
         BigDecimal debit = new BigDecimal("-100");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
@@ -256,7 +243,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenCreditIsZero() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -267,7 +253,7 @@ class SuccessfulTransferTest {
         BigDecimal debit = new BigDecimal("90");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());
@@ -276,7 +262,6 @@ class SuccessfulTransferTest {
     @Test
     void shouldThrowExceptionWhenCreditIsNegative() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         BigDecimal transferAmount = new BigDecimal("100.00");
         Account originator = new Account(1L, Currency.USD, new BigDecimal("1000.00"));
@@ -287,7 +272,7 @@ class SuccessfulTransferTest {
         BigDecimal debit = new BigDecimal("90");
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new SuccessfulTransfer(transferId, requestId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
+                new SuccessfulTransfer(transferId, createdAt, transferAmount, originator, beneficiary, processedAt, exchangeRate, debit, credit)
         );
 
         assertEquals(RegistryDomainErrorCode.NEGATIVE_AMOUNT, exception.getErrorCode());

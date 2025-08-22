@@ -1,6 +1,7 @@
 /.idea/
 /.metadata/
 /account/target/
+/accept/target/
 /transfer/target/
 /registry/target/
 /monolith/target/

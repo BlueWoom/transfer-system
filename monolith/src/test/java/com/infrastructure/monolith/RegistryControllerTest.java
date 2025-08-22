@@ -1,16 +1,14 @@
 package com.infrastructure.monolith;
 
 import com.domain.registry.exception.RegistryDomainErrorCode;
-import com.infrastructure.monolith.api.dto.AccountDTO;
-import com.infrastructure.monolith.api.dto.TransferDTO;
-import com.infrastructure.monolith.api.dto.TransferRequestDTO;
-import com.infrastructure.monolith.api.dto.TransferStatusDTO;
+import com.infrastructure.monolith.api.dto.*;
 import com.infrastructure.monolith.database.entity.AccountEntity;
+import com.infrastructure.monolith.database.entity.RequestEntity;
 import com.infrastructure.monolith.database.entity.TransferEntity;
 import com.infrastructure.monolith.database.entity.TransferStatus;
 import com.infrastructure.monolith.database.repository.AccountService;
+import com.infrastructure.monolith.database.repository.RequestService;
 import com.infrastructure.monolith.database.repository.TransferService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -28,7 +26,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@Disabled
 @Sql("/test-db/simple-test-data.sql")
 class RegistryControllerTest extends MonolithApplicationTest {
 
@@ -40,6 +37,9 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
     @Autowired
     private TransferService transferService;
+
+    @Autowired
+    private RequestService requestService;
 
     @Test
     void processTransferSuccessfully() {
@@ -56,7 +56,6 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
         // Assert transfer DTO is as expected
         TransferDTO actualTransfer = response.getBody();
-        assertThat(actualTransfer.requestId()).isEqualTo(idempotentKey);
         assertThat(actualTransfer.transferAmount()).isEqualTo(new BigDecimal("1000"));
         assertThat(actualTransfer.originator()).isEqualTo(new AccountDTO(101L, "EUR", new BigDecimal("4143.32000")));
         assertThat(actualTransfer.beneficiary()).isEqualTo(new AccountDTO(102L, "USD", new BigDecimal("3500.00")));
@@ -86,19 +85,24 @@ class RegistryControllerTest extends MonolithApplicationTest {
         headers.set("Idempotency-Key", idempotentKey);
         HttpEntity<TransferRequestDTO> requestEntity = new HttpEntity<>(transferRequest, headers);
 
-        ResponseEntity<TransferDTO> response = restTemplate.postForEntity("/transfer", requestEntity, TransferDTO.class);
+        ResponseEntity<ErrorDTO> response = restTemplate.postForEntity("/transfer", requestEntity, ErrorDTO.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(response.getBody()).isNotNull();
 
-        // Assert actualTransfer DTO is as expected
-        TransferDTO actualTransfer = response.getBody();
-        assertThat(actualTransfer.status()).isEqualTo(TransferStatusDTO.FAILED);
-        assertThat(actualTransfer.errorCode()).isEqualTo(RegistryDomainErrorCode.DUPLICATED_REQUEST.getValue());
+        // Assert error DTO is as expected
+        assertThat(response.getBody()).isNotNull();
+        ErrorDTO error = response.getBody();
+        assertThat(error.getErrorCode()).isEqualTo("Duplicated request");
+        assertThat(error.getMessage()).isEqualTo("Transfer with requestId d3c4b5a6-9870-6543-2109-876fedcba321 is duplicated");
+        assertThat(error.getTransactionId()).isEqualTo(UUID.fromString("a1b2c3d4-e5f6-7890-1234-567890abcdef"));
+        assertThat(error.getRequestId()).isEqualTo(UUID.fromString(idempotentKey));
+        assertThat(error.getTimestamp()).isNotNull();
+        assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.CONFLICT);
 
         // Assert database status is as expected
-        Optional<TransferEntity> transferEntity = transferService.getByTransferId(actualTransfer.transferId());
-        assertThat(transferEntity).isPresent();
-        assertFailedTransfer(transferEntity.get(), actualTransfer);
+        Optional<RequestEntity> request = requestService.findByRequestId(error.getRequestId());
+        assertThat(request).isPresent();
+        assertThat(request.get().getTransferId()).isEqualTo(UUID.fromString("a1b2c3d4-e5f6-7890-1234-567890abcdef"));
+        assertThat(request.get().getRequestId()).isEqualTo(UUID.fromString(idempotentKey));
     }
 
     @Test
@@ -265,7 +269,6 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
     private void assertSuccessfulTransfer(TransferEntity transferEntity, AccountEntity originatorEntity, AccountEntity beneficiaryEntity, TransferDTO actualTransfer) {
         assertThat(transferEntity.getTransferId()).isEqualTo(actualTransfer.transferId());
-        assertThat(transferEntity.getRequestId()).isEqualTo(actualTransfer.requestId());
         assertThat(transferEntity.getCreatedAt()).isCloseTo(actualTransfer.createdAt().truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));
         assertThat(transferEntity.getTransferAmount()).isEqualTo(new BigDecimal("1000.0000"));
         assertThat(transferEntity.getOriginator().getId()).isEqualTo(originatorEntity.getId());
@@ -279,7 +282,6 @@ class RegistryControllerTest extends MonolithApplicationTest {
 
     private void assertFailedTransfer(TransferEntity transferEntity, TransferDTO actualTransfer) {
         assertThat(transferEntity.getTransferId()).isEqualTo(actualTransfer.transferId());
-        assertThat(transferEntity.getRequestId()).isEqualTo(actualTransfer.requestId());
         assertThat(transferEntity.getCreatedAt()).isCloseTo(actualTransfer.createdAt().truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));
         assertThat(transferEntity.getStatus().toString()).isEqualTo(actualTransfer.status().toString());
         assertThat(transferEntity.getProcessedAt()).isCloseTo(actualTransfer.processedAt().truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));

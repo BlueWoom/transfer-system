@@ -48,6 +48,14 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
                 new TransferRequestDTO(103L, 102L, new BigDecimal("1"))
         );
 
+        List<UUID> idempotencyKeys = Collections.synchronizedList(new ArrayList<>());
+        while (idempotencyKeys.size() < transferRequests.size() * MAX_NUMBER_OF_TRANSFER) {
+            UUID requestId = UUID.randomUUID();
+            if (!idempotencyKeys.contains(requestId)) {
+                idempotencyKeys.add(requestId);
+            }
+        }
+
         List<TransferDTO> transfers = Collections.synchronizedList(new ArrayList<>());
 
         CountDownLatch latch = new CountDownLatch(transferRequests.size() * MAX_NUMBER_OF_TRANSFER);
@@ -58,7 +66,7 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
                     executorService.submit(() -> {
                         try {
                             HttpHeaders headers = new HttpHeaders();
-                            headers.set("Idempotency-Key", UUID.randomUUID().toString());
+                            headers.set("Idempotency-Key", idempotencyKeys.removeFirst().toString());
                             HttpEntity<TransferRequestDTO> requestEntity = new HttpEntity<>(transferRequest, headers);
                             ResponseEntity<TransferDTO> response = restTemplate.postForEntity("/transfer", requestEntity, TransferDTO.class);
                             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

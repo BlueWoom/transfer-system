@@ -10,6 +10,19 @@ spring:
     virtual:
       enabled: true
 
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 100
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
 rabbitmq-config:
   exchange: "registry.exchange"
   queue: "registry.queue"

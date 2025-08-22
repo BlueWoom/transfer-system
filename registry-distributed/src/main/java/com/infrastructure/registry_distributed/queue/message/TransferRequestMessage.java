@@ -5,7 +5,6 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record TransferRequestMessage(UUID transferId,
-                                     UUID requestId,
                                      OffsetDateTime createdAt,
                                      Long originatorId,
                                      Long beneficiaryId,

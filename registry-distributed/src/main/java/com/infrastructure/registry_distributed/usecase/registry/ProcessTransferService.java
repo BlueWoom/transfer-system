@@ -38,11 +38,6 @@ public class ProcessTransferService extends ProcessTransfer {
     @Transactional
     public SuccessfulTransfer execute(ProcessTransferRequest request) {
         try {
-            // Prevent duplicated requests
-            if(transferService.existsByRequestId(request.requestId())) {
-                throw new RegistryDomainException(RegistryDomainErrorCode.DUPLICATED_REQUEST, String.format("Transfer with requestId %s is duplicated", request.requestId()));
-            }
-
             // Fetch LOCK and ensure we don't lose this references
             AccountEntity originator = accountService.findByOwnerIdForUpdate(request.originatorId())
                     .orElseThrow(() -> new RegistryDomainException(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, "Originator account not found"));
@@ -51,7 +46,6 @@ public class ProcessTransferService extends ProcessTransfer {
                     .orElseThrow(() -> new RegistryDomainException(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, "Beneficiary account not found"));
 
             ValidateTransferRequest validate = new ValidateTransferRequest(request.transferId(),
-                                                                           request.requestId(),
                                                                            request.createdAt(),
                                                                            RegistryMapper.INSTANCE.mapFromEntityToModel(originator),
                                                                            RegistryMapper.INSTANCE.mapFromEntityToModel(beneficiary),
@@ -72,7 +66,7 @@ public class ProcessTransferService extends ProcessTransfer {
             log.info("Transfer {} has been processed SUCCESSFULLY", successfulTransfer);
             return successfulTransfer;
         } catch (RegistryDomainException e) {
-            FailedTransfer failedTransfer = failTransfer.execute(new FailTransferRequest(request.transferId(), request.requestId(), e.getErrorCode()));
+            FailedTransfer failedTransfer = failTransfer.execute(new FailTransferRequest(request.transferId(), e.getErrorCode()));
             log.error("Transfer {} has failed", failedTransfer);
             throw new AmqpRejectAndDontRequeueException("Invalid message data: " + e.getMessage());
         } catch (Exception e) {

@@ -9,11 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-        indexes = {
-                @Index(name = "idx_request", columnList = "requestId")
-        }
-)
+@Table
 @Getter
 @Setter
 @Builder
@@ -31,9 +27,6 @@ public class TransferEntity {
 
     @Column(nullable = false, unique = true, updatable = false)
     private UUID transferId;
-
-    @Column(nullable = false, updatable = false)
-    private UUID requestId;
 
     @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;

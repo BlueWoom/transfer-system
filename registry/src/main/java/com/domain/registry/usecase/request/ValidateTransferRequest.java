@@ -7,7 +7,6 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record ValidateTransferRequest(UUID transferId,
-                                      UUID requestId,
                                       OffsetDateTime createdAt,
                                       Account originator,
                                       Account beneficiary,

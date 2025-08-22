@@ -8,7 +8,5 @@ import java.util.UUID;
 
 interface TransferRepository extends JpaRepository<TransferEntity, Long> {
 
-    boolean existsByRequestId(UUID requestId);
-
     Optional<TransferEntity> getByTransferId(UUID uuid);
 }

@@ -36,7 +36,6 @@ class ValidateTransferTest {
     void shouldProcessTransferSuccessfully() {
         ValidateTransferRequest request = new ValidateTransferRequest(
                 UUID.randomUUID(),
-                UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1000.00")),
                 new Account(2L, Currency.EUR, new BigDecimal("500.00")),
@@ -51,7 +50,6 @@ class ValidateTransferTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getTransferId()).isEqualTo(request.transferId());
-        assertThat(result.getRequestId()).isEqualTo(request.requestId());
         assertThat(result.getCredit()).isEqualByComparingTo(request.amount());
         assertThat(result.getDebit()).isEqualByComparingTo(request.amount().multiply(exchangeRate));
     }
@@ -59,7 +57,6 @@ class ValidateTransferTest {
     @Test
     void shouldThrowExceptionWhenExchangeRateNotFound() {
         ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
                 UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1000.00")),
@@ -75,7 +72,6 @@ class ValidateTransferTest {
     @Test
     void shouldThrowExceptionWhenExchangeRateIsNegative() {
         ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
                 UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1000.00")),
@@ -93,7 +89,6 @@ class ValidateTransferTest {
     @Test
     void shouldThrowExceptionForInsufficientBalance() {
         ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
                 UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1.00")),
@@ -114,7 +109,6 @@ class ValidateTransferTest {
     void shouldThrowExceptionWhenOriginatorAndBeneficiaryAreEquals() {
         ValidateTransferRequest request = new ValidateTransferRequest(
                 UUID.randomUUID(),
-                UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1000.00")),
                 new Account(1L, Currency.EUR, new BigDecimal("500.00")),
@@ -134,7 +128,6 @@ class ValidateTransferTest {
     void shouldThrowExceptionWhenTransferAmountIsNegative() {
         ValidateTransferRequest request = new ValidateTransferRequest(
                 UUID.randomUUID(),
-                UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1000.00")),
                 new Account(2L, Currency.EUR, new BigDecimal("500.00")),
@@ -153,7 +146,6 @@ class ValidateTransferTest {
     @Test
     void shouldThrowExceptionWhenTransferAmountIsZero() {
         ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
                 UUID.randomUUID(),
                 OffsetDateTime.now(),
                 new Account(1L, Currency.USD, new BigDecimal("1000.00")),

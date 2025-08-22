@@ -6,7 +6,6 @@ import java.util.UUID;
 
 
 public record TransferDTO(UUID transferId,
-                          UUID requestId,
                           OffsetDateTime createdAt,
                           BigDecimal transferAmount,
                           AccountDTO originator,

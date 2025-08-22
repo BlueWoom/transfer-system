@@ -1,5 +1,5 @@
 -- Clean up existing data to ensure a fresh start for tests
-TRUNCATE TABLE transfer_entity, account_entity RESTART IDENTITY;
+TRUNCATE TABLE request_entity, transfer_entity, account_entity RESTART IDENTITY;
 
 -- =================================================================
 --  ACCOUNTS DATA
@@ -22,7 +22,6 @@ VALUES (1, 0, 101, 'EUR', 5000.0000),
 INSERT INTO transfer_entity (id,
                              version,
                              transfer_id,
-                             request_id,
                              created_at,
                              transfer_amount,
                              originator_id,
@@ -35,7 +34,6 @@ INSERT INTO transfer_entity (id,
 VALUES (1001,
         0,
         'a1b2c3d4-e5f6-7890-1234-567890abcdef', -- transferId
-        'f1e2d3c4-b5a6-9870-6543-210987fedcba', -- requestId
         '2025-08-15T10:00:00Z', -- createdAt
         100.00, -- transferAmount (in originator's currency)
         101, -- originator_id (EUR account)
@@ -51,7 +49,6 @@ VALUES (1001,
 INSERT INTO transfer_entity (id,
                              version,
                              transfer_id,
-                             request_id,
                              created_at,
                              transfer_amount,
                              originator_id,
@@ -61,7 +58,6 @@ INSERT INTO transfer_entity (id,
 VALUES (1002,
         0,
         'c3d4e5f6-a7b8-9012-3456-7890abcdef12', -- transferId
-        'd3c4b5a6-9870-6543-2109-876fedcba321', -- requestId
         '2025-08-16T09:00:00Z', -- createdAt
         200.00, -- transferAmount
         102, -- originator_id
@@ -70,5 +66,20 @@ VALUES (1002,
         '2025-08-16T09:01:05Z' -- processedAt
            -- No debit/credit as the transaction failed and was rolled back
        );
+
+-- =================================================================
+--  REQUEST DATA
+-- =================================================================
+
+-- 1. A successfully completed request
+INSERT INTO request_entity (id,
+                             version,
+                             transfer_id,
+                             request_id)
+VALUES (1001,
+        0,
+        'a1b2c3d4-e5f6-7890-1234-567890abcdef', -- transferId)
+        'd3c4b5a6-9870-6543-2109-876fedcba321'  -- requestId
+        );
 
 COMMIT;

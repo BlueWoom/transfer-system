@@ -39,7 +39,7 @@ public abstract class ValidateTransfer implements Usecase<SuccessfulTransfer, Va
         Account updatedBeneficiary = beneficiary.credit(credit);
 
         // Create successful transfer
-        return new SuccessfulTransfer(request.transferId(), request.requestId(), request.createdAt(),
-                request.amount(), updatedOriginator, updatedBeneficiary, OffsetDateTime.now(), exchangeRate, debit, credit);
+        return new SuccessfulTransfer(request.transferId(), request.createdAt(), request.amount(),
+                updatedOriginator, updatedBeneficiary, OffsetDateTime.now(), exchangeRate, debit, credit);
     }
 }

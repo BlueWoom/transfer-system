@@ -47,10 +47,15 @@ services:
         condition: service_healthy
       gateway:
         condition: service_healthy
+      db_transfer:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
       - SPRING_EUREKA_SERVICE=http://eureka:8761
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_transfer:5432/transfer
+      - SPRING_DATASOURCE_USERNAME=transfer
+      - SPRING_DATASOURCE_PASSWORD=transfer
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=distributed
@@ -111,6 +116,25 @@ services:
       - SPRING_RABBITMQ_PASSWORD=distributed
       - EXCHANGE_API_URL=https://api.frankfurter.app
 
+  # -- Database for Accept Service --
+  db_transfer:
+    image: postgres:latest
+    container_name: db_transfer
+    restart: always
+    environment:
+      - POSTGRES_USER=transfer
+      - POSTGRES_PASSWORD=transfer
+      - POSTGRES_DB=transfer
+    ports:
+      - "5432:5432" # Host port is different to avoid conflicts
+    volumes:
+      - ./postgres_data/distributed/transfer:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U transfer -d transfer" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # -- Database for Account Service --
   db_account:
     image: postgres:latest
@@ -121,7 +145,7 @@ services:
       - POSTGRES_PASSWORD=account
       - POSTGRES_DB=account
     ports:
-      - "5432:5432" # Host port is different to avoid conflicts
+      - "5433:5432" # Host port is different to avoid conflicts
     volumes:
       - ./postgres_data/distributed/account:/var/lib/postgresql/data
     healthcheck:
@@ -140,7 +164,7 @@ services:
       - POSTGRES_PASSWORD=registry
       - POSTGRES_DB=registry
     ports:
-      - "5433:5432" # Host port is different to avoid conflicts
+      - "5434:5432" # Host port is different to avoid conflicts
     volumes:
       - ./postgres_data/distributed/registry:/var/lib/postgresql/data
     healthcheck:

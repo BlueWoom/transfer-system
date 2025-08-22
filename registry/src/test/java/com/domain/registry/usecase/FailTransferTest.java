@@ -21,12 +21,11 @@ class FailTransferTest {
 
     @Test
     void shouldFailTransferSuccessfully() {
-        FailTransferRequest request = new FailTransferRequest(UUID.randomUUID(), UUID.randomUUID(), RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
+        FailTransferRequest request = new FailTransferRequest(UUID.randomUUID(), RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
 
         FailedTransfer result = failTransfer.execute(request);
 
         assertThat(result).isNotNull();
-        assertThat(result.getRequestId()).isEqualTo(request.requestId());
         assertThat(result.getCreatedAt()).isNotNull();
         assertThat(result.getProcessedAt()).isNotNull();
     }

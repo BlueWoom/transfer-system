@@ -53,6 +53,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
+        <!-- Databases -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- Devtools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -93,9 +103,21 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainer.postgres.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
             <artifactId>rabbitmq</artifactId>
             <version>${testcontainer.rabbitmq.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Domain -->
+        <dependency>
+            <groupId>com.domain</groupId>
+            <artifactId>accept</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

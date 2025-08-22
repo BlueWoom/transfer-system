@@ -15,6 +15,10 @@ abstract class TransferDistributedApplicationTests extends TestcontainerBase{
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+
         registry.add("spring.rabbitmq.host", rabbitMQ::getHost);
         registry.add("spring.rabbitmq.port", rabbitMQ::getAmqpPort);
         registry.add("spring.rabbitmq.username", rabbitMQ::getAdminUsername);

@@ -18,11 +18,10 @@ class FailedTransferTest {
         OffsetDateTime processedAt = OffsetDateTime.now();
         RegistryDomainErrorCode errorCode = RegistryDomainErrorCode.ACCOUNT_NOT_FOUND;
 
-        FailedTransfer failedTransfer = new FailedTransfer(transferId, requestId, createdAt, processedAt, errorCode);
+        FailedTransfer failedTransfer = new FailedTransfer(transferId, createdAt, processedAt, errorCode);
 
         assertNotNull(failedTransfer);
         assertEquals(transferId, failedTransfer.getTransferId());
-        assertEquals(requestId, failedTransfer.getRequestId());
         assertEquals(createdAt, failedTransfer.getCreatedAt());
         assertEquals(processedAt, failedTransfer.getProcessedAt());
         assertEquals(errorCode, failedTransfer.getErrorCode());
@@ -31,12 +30,11 @@ class FailedTransferTest {
     @Test
     void shouldThrowExceptionWhenProcessedAtIsNullForFullConstructor() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         RegistryDomainErrorCode errorCode = RegistryDomainErrorCode.ACCOUNT_NOT_FOUND;
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new FailedTransfer(transferId, requestId, createdAt, null, errorCode)
+                new FailedTransfer(transferId, createdAt, null, errorCode)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());

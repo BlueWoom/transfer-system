@@ -3,16 +3,12 @@ package com.domain.registry.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.UUID;
-
 @Getter
 @RequiredArgsConstructor
 public enum RegistryDomainErrorCode {
 
     NEGATIVE_AMOUNT("Negative amount"),
     INSUFFICIENT_BALANCE("Insufficient balance"),
-
-    DUPLICATED_REQUEST("Duplicated request"),
 
     ACCOUNT_NOT_FOUND("Account not found"),
     TRANSFER_NOT_FOUND("Transfer not found"),

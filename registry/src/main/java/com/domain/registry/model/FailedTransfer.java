@@ -16,8 +16,8 @@ public final class FailedTransfer extends Transfer {
 
     private final RegistryDomainErrorCode errorCode;
 
-    public FailedTransfer(UUID transferId, UUID requestId, OffsetDateTime createdAt, OffsetDateTime processedAt, RegistryDomainErrorCode errorCode) {
-        super(transferId, requestId, createdAt);
+    public FailedTransfer(UUID transferId, OffsetDateTime createdAt, OffsetDateTime processedAt, RegistryDomainErrorCode errorCode) {
+        super(transferId, createdAt);
 
         validateNotIncomplete(processedAt);
 

@@ -15,44 +15,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class TransferTest {
 
     private ConcreteTransfer createValidTransfer() {
-        return new ConcreteTransfer(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                OffsetDateTime.now()
-        );
+        return new ConcreteTransfer(UUID.randomUUID(), OffsetDateTime.now());
     }
 
     @Test
     void shouldCreateTransferWithValidArguments() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
-        ConcreteTransfer transfer = new ConcreteTransfer(transferId, requestId, createdAt);
+        ConcreteTransfer transfer = new ConcreteTransfer(transferId, createdAt);
 
         assertNotNull(transfer);
         assertEquals(transferId, transfer.getTransferId());
-        assertEquals(requestId, transfer.getRequestId());
         assertEquals(createdAt, transfer.getCreatedAt());
     }
 
     @Test
     void shouldThrowExceptionWhenTransferIdIsNull() {
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new ConcreteTransfer(null, requestId, createdAt)
-        );
-
-        assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
-        assertEquals("Transfer is invalid due to missing fields.", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenRequestIdIsNull() {
-        UUID transferId = UUID.randomUUID();
-        OffsetDateTime createdAt = OffsetDateTime.now();
-        RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new ConcreteTransfer(transferId, null, createdAt)
+                new ConcreteTransfer(null, createdAt)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -62,10 +43,9 @@ class TransferTest {
     @Test
     void shouldThrowExceptionWhenCreatedAtIsNull() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
 
         RegistryDomainException exception = assertThrows(RegistryDomainException.class, () ->
-                new ConcreteTransfer(transferId, requestId, null)
+                new ConcreteTransfer(transferId, null)
         );
 
         assertEquals(RegistryDomainErrorCode.INVALID_TRANSFER, exception.getErrorCode());
@@ -77,7 +57,6 @@ class TransferTest {
         ConcreteTransfer transfer = createValidTransfer();
         String expectedStart = "ConcreteTransfer(super=Transfer(transferId=" + transfer.getTransferId();
         assertTrue(transfer.toString().startsWith(expectedStart));
-        assertTrue(transfer.toString().contains("requestId=" + transfer.getRequestId()));
         assertTrue(transfer.toString().contains("createdAt=" + transfer.getCreatedAt()));
     }
 }

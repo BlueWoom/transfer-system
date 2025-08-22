@@ -32,6 +32,7 @@
     <modules>
         <!-- Domain -->
         <module>account</module>
+        <module>accept</module>
         <module>registry</module>
         <!-- Monolith Infrastructure -->
         <module>monolith</module>
