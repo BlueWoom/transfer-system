@@ -17,8 +17,6 @@ public interface RegistryMapper {
 
     RegistryMapper INSTANCE = Mappers.getMapper(RegistryMapper.class);
 
-    @Mapping(target = "debit", ignore = true)
-    @Mapping(target = "credit", ignore = true)
     @Mapping(target = "currency", source = "currency", qualifiedByName = "mapCurrency")
     Account mapFromEntityToModel(AccountEntity entity);
 

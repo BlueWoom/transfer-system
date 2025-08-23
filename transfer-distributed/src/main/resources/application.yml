@@ -24,6 +24,13 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: "SpringBootDevHikariCP"
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 900000
+      connection-timeout: 20000
 
   jpa:
     defer-datasource-initialization: true
@@ -33,6 +40,10 @@ spring:
       hibernate:
         default_schema: public
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      mode: always
 
 management:
   endpoints:

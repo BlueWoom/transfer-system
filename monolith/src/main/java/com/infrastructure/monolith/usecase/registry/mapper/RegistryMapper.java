@@ -1,7 +1,10 @@
 package com.infrastructure.monolith.usecase.registry.mapper;
 
 import com.domain.registry.exception.RegistryDomainErrorCode;
-import com.domain.registry.model.*;
+import com.domain.registry.model.Account;
+import com.domain.registry.model.Currency;
+import com.domain.registry.model.FailedTransfer;
+import com.domain.registry.model.SuccessfulTransfer;
 import com.infrastructure.monolith.database.entity.AccountEntity;
 import com.infrastructure.monolith.database.entity.TransferEntity;
 import org.mapstruct.Mapper;
@@ -14,8 +17,6 @@ public interface RegistryMapper {
 
     RegistryMapper INSTANCE = Mappers.getMapper(RegistryMapper.class);
 
-    @Mapping(target = "debit", ignore = true)
-    @Mapping(target = "credit", ignore = true)
     @Mapping(target = "currency", source = "currency", qualifiedByName = "mapCurrency")
     Account mapFromEntityToModel(AccountEntity entity);
 

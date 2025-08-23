@@ -1,13 +1,13 @@
 package com.infrastructure.monolith.api;
 
 import com.domain.accept.model.AcceptedTransfer;
+import com.domain.accept.usecase.AcceptTransfer;
 import com.domain.registry.model.SuccessfulTransfer;
+import com.domain.registry.usecase.ProcessTransfer;
 import com.infrastructure.monolith.api.dto.TransferDTO;
 import com.infrastructure.monolith.api.dto.TransferRequestDTO;
 import com.infrastructure.monolith.api.mapper.AcceptTransferMapper;
 import com.infrastructure.monolith.api.mapper.RegistryMapper;
-import com.infrastructure.monolith.usecase.accept.AcceptTransferService;
-import com.infrastructure.monolith.usecase.registry.ProcessTransferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,14 +21,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RegistryController {
 
-    private final AcceptTransferService acceptTransferService;
+    private final AcceptTransfer acceptTransfer;
 
-    private final ProcessTransferService processTransferService;
+    private final ProcessTransfer processTransfer;
 
     @PostMapping("/transfer")
     public ResponseEntity<TransferDTO> performTransfer(@RequestHeader("Idempotency-Key") UUID idempotencyKey, @RequestBody TransferRequestDTO dto) {
-        AcceptedTransfer acceptedTransfer = acceptTransferService.execute(AcceptTransferMapper.INSTANCE.mapFromDtoToModel(dto, idempotencyKey));
-        SuccessfulTransfer successfulTransfer = processTransferService.execute(RegistryMapper.INSTANCE.mapFromDtoToModel(acceptedTransfer));
+        AcceptedTransfer acceptedTransfer = acceptTransfer.execute(AcceptTransferMapper.INSTANCE.mapFromDtoToModel(dto, idempotencyKey));
+        SuccessfulTransfer successfulTransfer = processTransfer.execute(RegistryMapper.INSTANCE.mapFromDtoToModel(acceptedTransfer));
         return ResponseEntity.ok(RegistryMapper.INSTANCE.mapFromModelToDto(successfulTransfer));
     }
 }

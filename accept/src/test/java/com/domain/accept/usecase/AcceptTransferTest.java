@@ -37,7 +37,14 @@ class AcceptTransferTest {
         Long originatorId = 1L;
         Long beneficiary = 2L;
         BigDecimal amount = new BigDecimal("100");
-        AcceptTransferRequest request = new AcceptTransferRequest(requestId, originatorId, beneficiary, amount);
+
+        AcceptTransferRequest request = AcceptTransferRequest.builder()
+                .requestId(requestId)
+                .originatorId(originatorId)
+                .beneficiaryId(beneficiary)
+                .amount(amount)
+                .build();
+
         when(acceptPort.existsByRequestId(new IdempotencyKey(requestId))).thenReturn(false);
         assertThatCode(() -> acceptTransfer.execute(request)).doesNotThrowAnyException();
         verify(acceptPort).existsByRequestId(new IdempotencyKey(requestId));
@@ -50,7 +57,14 @@ class AcceptTransferTest {
         Long originatorId = 1L;
         Long beneficiary = 2L;
         BigDecimal amount = new BigDecimal("100");
-        AcceptTransferRequest request = new AcceptTransferRequest(requestId, originatorId, beneficiary, amount);
+
+        AcceptTransferRequest request = AcceptTransferRequest.builder()
+                .requestId(requestId)
+                .originatorId(originatorId)
+                .beneficiaryId(beneficiary)
+                .amount(amount)
+                .build();
+
         when(acceptPort.existsByRequestId(new IdempotencyKey(requestId))).thenReturn(true);
 
         assertThatThrownBy(() -> acceptTransfer.execute(request))

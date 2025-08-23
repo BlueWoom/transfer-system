@@ -12,7 +12,12 @@ public interface AcceptTransferMapper {
 
     AcceptTransferMapper INSTANCE = Mappers.getMapper(AcceptTransferMapper.class);
 
-    default AcceptTransferRequest mapFromDtoToModel(TransferRequestDTO dto, UUID requestId) {
-        return new AcceptTransferRequest(requestId, dto.originatorId(), dto.beneficiaryId(), dto.amount());
+    default AcceptTransferRequest mapFromDtoToModel(TransferRequestDTO dto, UUID idempotencyKey) {
+        return AcceptTransferRequest.builder()
+                .requestId(idempotencyKey)
+                .originatorId(dto.originatorId())
+                .beneficiaryId(dto.beneficiaryId())
+                .amount(dto.amount())
+                .build();
     }
 }

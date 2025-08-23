@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UpdateAccountService {
+public class UpdateAccountUsecase {
 
     private final AccountService accountService;
 

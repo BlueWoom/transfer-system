@@ -22,6 +22,13 @@ public abstract class AcceptTransfer implements Usecase<AcceptedTransfer, Accept
             throw new AcceptDomainException(AcceptDomainErrorCode.DUPLICATED_REQUEST, String.format("Transfer with requestId %s is duplicated", request.requestId()));
         }
 
-        return new AcceptedTransfer(UUID.randomUUID(), request.requestId(), OffsetDateTime.now(), request.originatorId(), request.beneficiaryId(), request.amount());
+        return AcceptedTransfer.builder()
+                .transferId(UUID.randomUUID())
+                .requestId(request.requestId())
+                .createdAt(OffsetDateTime.now())
+                .originatorId(request.originatorId())
+                .beneficiaryId(request.beneficiaryId())
+                .amount(request.amount())
+                .build();
     }
 }

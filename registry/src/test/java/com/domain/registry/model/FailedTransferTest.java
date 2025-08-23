@@ -10,10 +10,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FailedTransferTest {
+
     @Test
     void shouldCreateFailedTransferWithMinimalDetailsSuccessfully() {
         UUID transferId = UUID.randomUUID();
-        UUID requestId = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now().minusHours(1);
         OffsetDateTime processedAt = OffsetDateTime.now();
         RegistryDomainErrorCode errorCode = RegistryDomainErrorCode.ACCOUNT_NOT_FOUND;

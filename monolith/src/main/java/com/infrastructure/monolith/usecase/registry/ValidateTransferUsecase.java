@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-public class ValidateTransferService extends ValidateTransfer {
+public class ValidateTransferUsecase extends ValidateTransfer {
 
-    public ValidateTransferService(RegistryPort registryPort) {
+    public ValidateTransferUsecase(RegistryPort registryPort) {
         super(registryPort);
     }
 

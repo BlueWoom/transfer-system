@@ -2,6 +2,7 @@ package com.infrastructure.transfer_distributed.usecase.accept.mapper;
 
 import com.domain.accept.model.AcceptedTransfer;
 import com.infrastructure.transfer_distributed.database.entity.RequestEntity;
+import com.infrastructure.transfer_distributed.queue.message.TransferRequestMessage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -14,4 +15,6 @@ public interface AcceptTransferMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "version", ignore = true)
     RequestEntity mapFromModelToEntity(AcceptedTransfer transfer);
+
+    TransferRequestMessage mapFromModelToMessage(AcceptedTransfer acceptedTransfer);
 }

@@ -75,7 +75,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
             verify(producer, times(2)).sendAccountEvent(accountCaptor.capture());
             List<Account> capturedAccounts = accountCaptor.getAllValues();
@@ -125,7 +125,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("2500.00");
 
@@ -145,7 +145,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity originatorEntity = accountService.findByOwnerId(originatorId).get();
             assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
 
@@ -165,7 +165,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("2500.00");
 
@@ -188,7 +188,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("2500.00");
 
@@ -211,7 +211,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("5000.00");
 
@@ -231,7 +231,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("2500.00");
 
@@ -254,7 +254,7 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
 
         rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
             AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
             assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("10000.00");
 

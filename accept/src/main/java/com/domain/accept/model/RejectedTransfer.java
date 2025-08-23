@@ -1,5 +1,9 @@
 package com.domain.accept.model;
 
+import lombok.Builder;
+
 import java.util.UUID;
 
-public record RejectedTransfer(UUID transferId, UUID requestId) { }
+@Builder
+public record RejectedTransfer(UUID transferId,
+                               UUID requestId) { }

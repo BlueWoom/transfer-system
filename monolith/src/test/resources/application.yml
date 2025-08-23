@@ -2,17 +2,8 @@ spring:
   profiles:
     active: test
 
-  cache:
-    type: caffeine
-
-  threads:
-    virtual:
-      enabled: true
-
   datasource:
     driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 100
 
   jpa:
     hibernate:
@@ -20,7 +11,6 @@ spring:
     properties:
       hibernate:
         default_schema: public
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 # logging:
   # level:

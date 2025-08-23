@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProcessTransferService extends ProcessTransfer {
+public class ProcessTransferUsecase extends ProcessTransfer {
 
     private final ValidateTransfer validateTransfer;
 
@@ -45,11 +45,13 @@ public class ProcessTransferService extends ProcessTransfer {
             AccountEntity beneficiary = accountService.findByOwnerIdForUpdate(request.beneficiaryId())
                     .orElseThrow(() -> new RegistryDomainException(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, "Beneficiary account not found"));
 
-            ValidateTransferRequest validate = new ValidateTransferRequest(request.transferId(),
-                                                                           request.createdAt(),
-                                                                           RegistryMapper.INSTANCE.mapFromEntityToModel(originator),
-                                                                           RegistryMapper.INSTANCE.mapFromEntityToModel(beneficiary),
-                                                                           request.amount());
+            ValidateTransferRequest validate = ValidateTransferRequest.builder()
+                    .transferId(request.transferId())
+                    .createdAt(request.createdAt())
+                    .originator(RegistryMapper.INSTANCE.mapFromEntityToModel(originator))
+                    .beneficiary(RegistryMapper.INSTANCE.mapFromEntityToModel(beneficiary))
+                    .amount(request.amount())
+                    .build();
 
             SuccessfulTransfer successfulTransfer = validateTransfer.execute(validate);
 
@@ -66,7 +68,12 @@ public class ProcessTransferService extends ProcessTransfer {
             log.info("Transfer {} has been processed SUCCESSFULLY", successfulTransfer);
             return successfulTransfer;
         } catch (RegistryDomainException e) {
-            FailedTransfer failedTransfer = failTransfer.execute(new FailTransferRequest(request.transferId(), e.getErrorCode()));
+            FailTransferRequest failTransferRequest = FailTransferRequest.builder()
+                    .transferId(request.transferId())
+                    .errorCode(e.getErrorCode())
+                    .build();
+
+            FailedTransfer failedTransfer = failTransfer.execute(failTransferRequest);
             log.error("Transfer {} has failed", failedTransfer);
             throw new AmqpRejectAndDontRequeueException("Invalid message data: " + e.getMessage());
         } catch (Exception e) {

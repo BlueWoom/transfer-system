@@ -6,17 +6,8 @@ spring:
     config:
       enabled: false
 
-  cache:
-    type: caffeine
-
-  threads:
-    virtual:
-      enabled: true
-
   datasource:
     driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 100
 
   jpa:
     hibernate:
@@ -24,7 +15,6 @@ spring:
     properties:
       hibernate:
         default_schema: public
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 rabbitmq-config:
   account-distributed:
@@ -41,13 +31,3 @@ rabbitmq-config:
 eureka:
   client:
     enabled: false
-
-# logging:
-  # level:
-    # JPA / Hibernate SQL Logging
-    # org.hibernate.SQL: DEBUG
-    # org.hibernate.orm.jdbc.bind: TRACE
-
-    # Spring Transaction Logging
-    # org.springframework.transaction: TRACE
-    # org.springframework.orm.jpa: DEBUG

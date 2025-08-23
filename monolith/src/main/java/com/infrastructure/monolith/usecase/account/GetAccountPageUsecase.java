@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class GetAccountPageService extends GetAccountPage {
+public class GetAccountPageUsecase extends GetAccountPage {
 
-    public GetAccountPageService(AccountPort accountPort) {
+    public GetAccountPageUsecase(AccountPort accountPort) {
         super(accountPort);
     }
 

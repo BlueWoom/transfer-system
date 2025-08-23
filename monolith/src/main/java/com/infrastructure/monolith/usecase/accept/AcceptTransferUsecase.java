@@ -1,4 +1,4 @@
-package com.infrastructure.transfer_distributed.usecase.accept;
+package com.infrastructure.monolith.usecase.accept;
 
 import com.domain.accept.exception.AcceptDomainException;
 import com.domain.accept.model.AcceptedTransfer;
@@ -6,24 +6,24 @@ import com.domain.accept.model.RejectedTransfer;
 import com.domain.accept.port.AcceptPort;
 import com.domain.accept.usecase.AcceptTransfer;
 import com.domain.accept.usecase.request.AcceptTransferRequest;
-import com.infrastructure.transfer_distributed.database.repository.RequestService;
-import com.infrastructure.transfer_distributed.usecase.accept.mapper.AcceptTransferMapper;
+import com.infrastructure.monolith.database.repository.RequestService;
+import com.infrastructure.monolith.usecase.accept.mapper.AcceptTransferMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-public class AcceptTransferService extends AcceptTransfer {
+public class AcceptTransferUsecase extends AcceptTransfer {
 
     private final RequestService requestService;
 
-    private final RejectTransferService rejectTransferService;
+    private final RejectTransferUsecase rejectTransferUsecase;
 
-    public AcceptTransferService(AcceptPort acceptPort, RequestService requestService, RejectTransferService rejectTransferService) {
+    public AcceptTransferUsecase(AcceptPort acceptPort, RequestService requestService, RejectTransferUsecase rejectTransferUsecase) {
         super(acceptPort);
         this.requestService = requestService;
-        this.rejectTransferService = rejectTransferService;
+        this.rejectTransferUsecase = rejectTransferUsecase;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class AcceptTransferService extends AcceptTransfer {
             log.error("Request accepted: {}", acceptedTransfer);
             return acceptedTransfer;
         } catch (AcceptDomainException e) {
-            RejectedTransfer rejectedTransfer = rejectTransferService.execute(request);
+            RejectedTransfer rejectedTransfer = rejectTransferUsecase.execute(request);
             log.error("Duplicated request: {}", rejectedTransfer);
             throw new AcceptTransferException(rejectedTransfer, e.getErrorCode(), e.getMessage(), e);
         }

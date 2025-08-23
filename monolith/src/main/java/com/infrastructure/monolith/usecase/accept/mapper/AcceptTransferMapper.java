@@ -1,7 +1,6 @@
 package com.infrastructure.monolith.usecase.accept.mapper;
 
 import com.domain.accept.model.AcceptedTransfer;
-import com.domain.accept.model.RejectedTransfer;
 import com.infrastructure.monolith.database.entity.RequestEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,8 +14,4 @@ public interface AcceptTransferMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "version", ignore = true)
     RequestEntity mapFromModelToEntity(AcceptedTransfer transfer);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    RequestEntity mapFromModelToEntity(RejectedTransfer transfer);
 }

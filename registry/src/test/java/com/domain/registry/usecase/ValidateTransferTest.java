@@ -34,13 +34,25 @@ class ValidateTransferTest {
 
     @Test
     void shouldProcessTransferSuccessfully() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                BigDecimal.valueOf(100)
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(new BigDecimal("100"))
+                .build();
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 
@@ -56,13 +68,25 @@ class ValidateTransferTest {
 
     @Test
     void shouldThrowExceptionWhenExchangeRateNotFound() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                BigDecimal.valueOf(100)
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(new BigDecimal("100"))
+                .build();
 
         assertThatThrownBy(() -> validateTransfer.execute(request))
                 .isInstanceOf(RegistryDomainException.class)
@@ -71,13 +95,25 @@ class ValidateTransferTest {
 
     @Test
     void shouldThrowExceptionWhenExchangeRateIsNegative() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                new BigDecimal("100")
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(new BigDecimal("100"))
+                .build();
 
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(new BigDecimal("-1")));
 
@@ -88,15 +124,27 @@ class ValidateTransferTest {
 
     @Test
     void shouldThrowExceptionForInsufficientBalance() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                new BigDecimal("100")
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("100.00"))
+                .build();
 
-        BigDecimal exchangeRate = new BigDecimal("0.85");
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(new BigDecimal("100"))
+                .build();
+
+        BigDecimal exchangeRate = new BigDecimal("1.17");
 
         when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(exchangeRate));
 
@@ -107,13 +155,25 @@ class ValidateTransferTest {
 
     @Test
     void shouldThrowExceptionWhenOriginatorAndBeneficiaryAreEquals() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(1L, Currency.EUR, new BigDecimal("500.00")),
-                new BigDecimal("100")
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(new BigDecimal("100"))
+                .build();
 
         BigDecimal exchangeRate = new BigDecimal("1.00");
 
@@ -126,13 +186,25 @@ class ValidateTransferTest {
 
     @Test
     void shouldThrowExceptionWhenTransferAmountIsNegative() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                new BigDecimal("-100")
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(new BigDecimal("-100"))
+                .build();
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 
@@ -145,13 +217,25 @@ class ValidateTransferTest {
 
     @Test
     void shouldThrowExceptionWhenTransferAmountIsZero() {
-        ValidateTransferRequest request = new ValidateTransferRequest(
-                UUID.randomUUID(),
-                OffsetDateTime.now(),
-                new Account(1L, Currency.USD, new BigDecimal("1000.00")),
-                new Account(2L, Currency.EUR, new BigDecimal("500.00")),
-                BigDecimal.ZERO
-        );
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(BigDecimal.ZERO)
+                .build();
 
         BigDecimal exchangeRate = new BigDecimal("0.85");
 

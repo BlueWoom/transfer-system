@@ -19,6 +19,9 @@ public abstract class RejectTransfer implements Usecase<RejectedTransfer, Accept
         UUID transferId = acceptPort.getTransferIdByRequestId(request.requestId())
                 .orElseThrow(() -> new AcceptDomainException(AcceptDomainErrorCode.TRANSFER_NOT_FOUND, String.format("Transfer with request id %s not found.", request.requestId())));
 
-        return new RejectedTransfer(transferId, request.requestId());
+        return RejectedTransfer.builder()
+                .transferId(transferId)
+                .requestId(request.requestId())
+                .build();
     }
 }

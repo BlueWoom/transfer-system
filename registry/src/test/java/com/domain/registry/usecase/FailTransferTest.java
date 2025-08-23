@@ -16,12 +16,14 @@ class FailTransferTest {
 
     @BeforeEach
     void setUp() {
-        failTransfer = new FailTransfer() { };
+        failTransfer = new FailTransfer() {};
     }
 
     @Test
     void shouldFailTransferSuccessfully() {
-        FailTransferRequest request = new FailTransferRequest(UUID.randomUUID(), RegistryDomainErrorCode.ACCOUNT_NOT_FOUND);
+        FailTransferRequest request = FailTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .errorCode(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND).build();
 
         FailedTransfer result = failTransfer.execute(request);
 

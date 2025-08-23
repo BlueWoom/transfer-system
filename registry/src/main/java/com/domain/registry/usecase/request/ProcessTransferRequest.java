@@ -1,9 +1,12 @@
 package com.domain.registry.usecase.request;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Builder
 public record ProcessTransferRequest(UUID transferId,
                                      OffsetDateTime createdAt,
                                      Long originatorId,

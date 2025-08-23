@@ -1,4 +1,4 @@
-package com.infrastructure.transfer_distributed.usecase.accept;
+package com.infrastructure.monolith.usecase.accept;
 
 import com.domain.accept.model.RejectedTransfer;
 import com.domain.accept.port.AcceptPort;
@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RejectTransferService extends RejectTransfer {
+public class RejectTransferUsecase extends RejectTransfer {
 
-    public RejectTransferService(AcceptPort acceptPort) {
+    public RejectTransferUsecase(AcceptPort acceptPort) {
         super(acceptPort);
     }
 
