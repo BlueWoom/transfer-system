@@ -31,6 +31,10 @@ public abstract class ValidateTransfer implements Usecase<SuccessfulTransfer, Va
             throw new RegistryDomainException(RegistryDomainErrorCode.EXCHANGE_RATE_NEGATIVE, String.format("Exchange rate from %s to %s is negative: %s", originator.currency(), beneficiary.currency(), exchangeRate));
         }
 
+        if (request.amount() == null) {
+            throw new RegistryDomainException(RegistryDomainErrorCode.INVALID_TRANSFER, "Transfer is not processable due to missing fields.");
+        }
+
         BigDecimal debit = request.amount().multiply(exchangeRate);
         BigDecimal credit = request.amount();
 

@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -69,8 +68,6 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
                             headers.set("Idempotency-Key", idempotencyKeys.removeFirst().toString());
                             HttpEntity<TransferRequestDTO> requestEntity = new HttpEntity<>(transferRequest, headers);
                             ResponseEntity<TransferDTO> response = restTemplate.postForEntity("/transfer", requestEntity, TransferDTO.class);
-                            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-                            assertThat(response.getBody()).isNotNull();
                             transfers.add(response.getBody());
                         } finally {
                             latch.countDown();
@@ -82,11 +79,13 @@ class RegistryControllerConcurrencyTest extends MonolithApplicationTest {
         latch.await();
         executorService.shutdown();
 
-        transfers.forEach(transfer -> {
-            Optional<TransferEntity> transferEntity = transferService.getByTransferId(transfer.transferId());
+        assertThat(transfers.size()).isEqualTo(MAX_NUMBER_OF_TRANSFER * transferRequests.size());
+        for (int i = 0; i < MAX_NUMBER_OF_TRANSFER * transferRequests.size(); i++) {
+            TransferDTO dto = transfers.get(i);
+            Optional<TransferEntity> transferEntity = transferService.getByTransferId(dto.transferId());
             assertThat(transferEntity).isPresent();
             assertThat(transferEntity.get().getStatus()).isEqualTo(TransferStatus.SUCCESS);
-        });
+        }
 
         AccountEntity beneficiary = accountService.findByOwnerId(102L).get();
         AccountEntity originator1 = accountService.findByOwnerId(101L).get();

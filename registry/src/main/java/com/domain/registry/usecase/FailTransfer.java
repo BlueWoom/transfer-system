@@ -13,6 +13,7 @@ public abstract class FailTransfer implements Usecase<FailedTransfer, FailTransf
 
     @Override
     public FailedTransfer execute(FailTransferRequest request) {
+        // Could have more complex logic to handle failed transfer
         return new FailedTransfer(request.transferId(), OffsetDateTime.now(), OffsetDateTime.now(), request.errorCode());
     }
 }

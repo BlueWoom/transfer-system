@@ -44,7 +44,7 @@ public interface RegistryMapper {
 
     @Named("mapCurrency")
     default Currency mapFromStringToModel(String currency) {
-        return Currency.valueOf(currency);
+        return Currency.fromValue(currency);
     }
 
     @Named("mapErrorCode")

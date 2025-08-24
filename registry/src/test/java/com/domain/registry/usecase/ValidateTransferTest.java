@@ -245,4 +245,35 @@ class ValidateTransferTest {
                 .isInstanceOf(RegistryDomainException.class)
                 .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.NEGATIVE_AMOUNT);
     }
+
+    @Test
+    void shouldThrowExceptionWhenTransferAmountIsNull() {
+        Account originator = Account.builder()
+                .ownerId(1L)
+                .currency(Currency.USD)
+                .balance(new BigDecimal("1000.00"))
+                .build();
+
+        Account beneficiary = Account.builder()
+                .ownerId(2L)
+                .currency(Currency.EUR)
+                .balance(new BigDecimal("500.00"))
+                .build();
+
+        ValidateTransferRequest request = ValidateTransferRequest.builder()
+                .transferId(UUID.randomUUID())
+                .createdAt(OffsetDateTime.now())
+                .originator(originator)
+                .beneficiary(beneficiary)
+                .amount(null)
+                .build();
+
+        BigDecimal exchangeRate = new BigDecimal("0.85");
+
+        when(registryPort.getExchangeRate(request.originator().currency(), request.beneficiary().currency())).thenReturn(Optional.of(exchangeRate));
+
+        assertThatThrownBy(() -> validateTransfer.execute(request))
+                .isInstanceOf(RegistryDomainException.class)
+                .hasFieldOrPropertyWithValue("errorCode", RegistryDomainErrorCode.INVALID_TRANSFER);
+    }
 }

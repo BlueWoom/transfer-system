@@ -37,7 +37,10 @@ public class ProcessTransferUsecase extends ProcessTransfer {
     @Transactional
     public SuccessfulTransfer execute(ProcessTransferRequest request) {
         try {
-            // Fetch LOCK and ensure we don't lose this references
+
+            // Another way of doing this is fetching the account entity from within the domain using adapters
+            // I prefer this way in this case because it makes the transaction and the behaviour of the lock easier to follow
+
             AccountEntity originator = accountService.findByOwnerIdForUpdate(request.originatorId())
                     .orElseThrow(() -> new RegistryDomainException(RegistryDomainErrorCode.ACCOUNT_NOT_FOUND, "Originator account not found"));
 

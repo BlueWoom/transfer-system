@@ -1,0 +1,43 @@
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/monolith
+    username: monolith
+    password: monolith
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: "SpringBootDevHikariCP"
+      maximum-pool-size: 5
+      minimum-idle: 2
+
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public
+        show_sql: true
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      mode: always
+
+exchange-api:
+  base-url: https://api.frankfurter.app
+  cache:
+    name: currencies-dev
+    size: 100
+    expiration-hours: 1
+  retryer:
+    period-seconds: 1
+    duration-seconds: 2
+    max-attempts: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

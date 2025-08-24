@@ -267,6 +267,30 @@ class RegistryControllerTest extends MonolithApplicationTest {
         assertFailedTransfer(transferEntity.get(), actualTransfer);
     }
 
+    @Test
+    void shouldFailIfInvalidCurrency() {
+        TransferRequestDTO transferRequest = new TransferRequestDTO(101L, 105L, new BigDecimal("100"));
+
+        HttpHeaders headers = new HttpHeaders();
+        UUID idempotentKey = UUID.randomUUID();
+        headers.set("Idempotency-Key", idempotentKey.toString());
+        HttpEntity<TransferRequestDTO> requestEntity = new HttpEntity<>(transferRequest, headers);
+
+        ResponseEntity<TransferDTO> response = restTemplate.postForEntity("/transfer", requestEntity, TransferDTO.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+
+        // Assert actualTransfer DTO is as expected
+        TransferDTO actualTransfer = response.getBody();
+        assertThat(actualTransfer.status()).isEqualTo(TransferStatusDTO.FAILED);
+        assertThat(actualTransfer.errorCode()).isEqualTo(RegistryDomainErrorCode.INVALID_CURRENCY.getValue());
+
+        // Assert database status is as expected
+        Optional<TransferEntity> transferEntity = transferService.getByTransferId(actualTransfer.transferId());
+        assertThat(transferEntity).isPresent();
+        assertFailedTransfer(transferEntity.get(), actualTransfer);
+    }
+
     private void assertSuccessfulTransfer(TransferEntity transferEntity, AccountEntity originatorEntity, AccountEntity beneficiaryEntity, TransferDTO actualTransfer) {
         assertThat(transferEntity.getTransferId()).isEqualTo(actualTransfer.transferId());
         assertThat(transferEntity.getCreatedAt()).isCloseTo(actualTransfer.createdAt().truncatedTo(ChronoUnit.MICROS), within(1, ChronoUnit.MICROS));

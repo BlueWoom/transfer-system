@@ -266,6 +266,29 @@ class RegistryControllerTest extends RegistryDistributedApplicationTest {
         });
     }
 
+    @Test
+    void shouldFailIfInvalidCurrency() {
+        UUID transferId = UUID.randomUUID();
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        Long originatorId = 101L;
+        Long beneficiaryId = 105L;
+        BigDecimal amount = new BigDecimal("0");
+        TransferRequestMessage message = new TransferRequestMessage(transferId, createdAt, originatorId, beneficiaryId, amount);
+
+        rabbitTemplate.convertAndSend(registryExchange, registryRoutingKey, message);
+
+        await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
+            AccountEntity beneficiaryEntity = accountService.findByOwnerId(beneficiaryId).get();
+            assertThat(beneficiaryEntity.getBalance()).isEqualByComparingTo("1000.00");
+
+            AccountEntity originatorEntity = accountService.findByOwnerId(originatorId).get();
+            assertThat(originatorEntity.getBalance()).isEqualByComparingTo("5000.00");
+
+            Optional<TransferEntity> transferEntityOpt = transferService.getByTransferId(transferId);
+            assertFailedMessage(transferEntityOpt, transferId, createdAt, RegistryDomainErrorCode.INVALID_CURRENCY);
+        });
+    }
+
     private static void assertFailedMessage(Optional<TransferEntity> transferEntityOpt, UUID transferId, OffsetDateTime createdAt, RegistryDomainErrorCode errorCode) {
         assertThat(transferEntityOpt).isPresent();
         assertThat(transferEntityOpt.get().getTransferId()).isEqualTo(transferId);

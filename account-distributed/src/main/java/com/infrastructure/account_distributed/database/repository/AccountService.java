@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,16 +25,7 @@ public class AccountService {
         return accountRepository.findAll(pageable);
     }
 
-    @Transactional(readOnly = true)
-    public Long count() {
-        return accountRepository.count();
-    }
-
     public AccountEntity save(AccountEntity account) {
         return accountRepository.save(account);
-    }
-
-    public void saveAll(List<AccountEntity> accountEntities) {
-        accountRepository.saveAll(accountEntities);
     }
 }

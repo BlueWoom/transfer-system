@@ -32,7 +32,7 @@ public class AcceptTransferUsecase extends AcceptTransfer {
         try {
             AcceptedTransfer acceptedTransfer = super.execute(request);
             requestService.save(AcceptTransferMapper.INSTANCE.mapFromModelToEntity(acceptedTransfer));
-            log.error("Request accepted: {}", acceptedTransfer);
+            log.info("Request accepted: {}", acceptedTransfer);
             return acceptedTransfer;
         } catch (AcceptDomainException e) {
             RejectedTransfer rejectedTransfer = rejectTransferUsecase.execute(request);

@@ -38,7 +38,7 @@ public class AcceptTransferUsecase extends AcceptTransfer {
             AcceptedTransfer acceptedTransfer = super.execute(request);
             requestService.save(AcceptTransferMapper.INSTANCE.mapFromModelToEntity(acceptedTransfer));
             transferRequestProducer.sendTransferRequest(AcceptTransferMapper.INSTANCE.mapFromModelToMessage(acceptedTransfer));
-            log.error("Request accepted: {}", acceptedTransfer);
+            log.info("Request accepted: {}", acceptedTransfer);
             return acceptedTransfer;
         } catch (AcceptDomainException e) {
             RejectedTransfer rejectedTransfer = rejectTransfer.execute(request);
